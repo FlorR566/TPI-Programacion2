@@ -1,12 +1,21 @@
 
 package foodstore;
 
+import foodstore.entities.Base;
+import foodstore.entities.Categoria;
+import foodstore.entities.Pedido;
+import foodstore.entities.Producto;
+import foodstore.entities.Usuario;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     private static Scanner sc = new Scanner(System.in);
+    private static List<Categoria> categorias = new ArrayList<Categoria>();
+    private static List<Producto> productos = new ArrayList<>();
+    private static List<Usuario> usuarios = new ArrayList<>();
+    private static List<Pedido> pedidos = new ArrayList<>();
     
     public static void main(String[] args) {
         
@@ -20,7 +29,7 @@ public class Main {
         
     }
     
-    public static void init() {
+    private static void init() {
         int opcionMenu = -1;
         System.out.println("========= SISTEMA DE PEDIDOS (FOOD STORE) ==========");
         
@@ -52,7 +61,9 @@ public class Main {
         
     }
     
-    public static void mostrarMenu() {
+    // Operaciones de menu
+    
+    private static void mostrarMenu() {
         System.out.println("\n================== Menú principal ==================\n");
         System.out.println("1. Categorías");
         System.out.println("2. Productos"); 
@@ -62,7 +73,7 @@ public class Main {
         
     }
     
-    public static void mostrarSubMenu(int opcionMenu) {
+    private static void mostrarSubMenu(int opcionMenu) {
         String tituloSubmenu= opcionMenu == 1 ? "CATEGORIAS" : opcionMenu == 2 ? "PRODUCTOS" : opcionMenu == 3 ? "USUARIOS" : "PEDIDOS";
         
         System.out.println("\n================ " + tituloSubmenu + " ===============");
@@ -83,12 +94,11 @@ public class Main {
             System.out.print("\nSeleccione una opción del submenú: ");
            try {
                opcionSubmenu = Integer.parseInt(Main.sc.nextLine().trim());
-               if (Main.cumpleRangoValido(opcionSubmenu, 0, 4)) {
-                   System.out.println("opcionMenu: " + opcionMenu + ", opcionSubMenu: " + opcionSubmenu );
+               if (Main.cumpleRangoValido(opcionSubmenu, 0, 4)) {                   
                    // Evaluar la opción de menu principal elegida
                    switch (opcionMenu) {
                        case 1: {
-                           Main.procesarOpcionCRUD(opcionSubmenu, "Categoria"); // crear un enum o mandar la clase?
+                           Main.procesarOpcionCRUD(opcionSubmenu, "Categoría"); // crear un enum o mandar la clase?
                            break;
                        }
                        case 2: {
@@ -128,32 +138,21 @@ public class Main {
             try {
                 switch(opcionSubmenu) {
                     case 1: {
-                        System.out.println("Listar " + objeto);
-                        
-                        break;                        
+                        Main.listar(objeto);
+                        break;
                     }
                     case 2: {
-                        
-                        System.out.println("Crear " + objeto);
-                        
+                        Main.crear(objeto);
                         break;
-                        
                     }
                     case 3:{
-                        
-                        System.out.println("Editar " + objeto);
-                        
+                        Main.editar(objeto);
                         break;
-                        
                     }
                     case 4: {
-                        
-                        System.out.println("Eliminar "+ objeto);                       
-                        
+                        Main.eliminar(objeto);
                         break;
-                        
-                    }
-                 
+                    }                 
                     default:
                         System.out.println("\nOpción inválida\n");
                         break;
@@ -171,8 +170,129 @@ public class Main {
         
     }
     
+    
+    // Operaciones CRUD
+    
+    private static void listar(String objeto) {
+        switch(objeto) {
+            case "Categoría": {
+                Main.imprimirPorConsola(categorias);
+                break;
+            }
+            case "Productos": {
+                Main.imprimirPorConsola(productos);
+                break;
+            }
+            case "Usuarios": {
+                Main.imprimirPorConsola(usuarios);
+                break;
+            }
+            case "Pedidos": {
+                Main.imprimirPorConsola(pedidos);
+                break;
+            }
+            default: {
+                throw new RuntimeException("Error: Entidad desconocida");                
+            }
+        }
+    }
+    
+    
+    // La implementación varía según cada objeto concreto (argumentos específicos para tomar con el scanner)
+    private static void crear(String objeto) {
+        switch(objeto) {
+            case "Categoría": {
+                // validar el input
+                break;
+            }
+            case "Productos": {
+                
+                break;
+            }
+            case "Usuarios": {
+                
+                break;
+            }
+            case "Pedidos": {
+                
+                break;
+            }
+            default: {
+                throw new RuntimeException("Error: Entidad desconocida");                
+            }
+        }
+    }
+    
+    // La implementación varía según cada objeto concreto (argumentos específicos para tomar con el scanner)
+    // Pero siempre con el ID del objeto para identificarlo
+    private static void editar(String objeto) {
+        switch(objeto) {
+            case "Categoría": {
+                
+                break;
+            }
+            case "Productos": {
+                
+                break;
+            }
+            case "Usuarios": {
+                
+                break;
+            }
+            case "Pedidos": {
+                
+                break;
+            }
+            default: {
+                throw new RuntimeException("Error: Entidad desconocida");                
+            }
+        }
+    }
+    
+    // La implementación toma el ID
+    private static void eliminar(String objeto) {
+        switch(objeto) {
+            case "Categoría": {
+                
+                break;
+            }
+            case "Productos": {
+                
+                break;
+            }
+            case "Usuarios": {
+                
+                break;
+            }
+            case "Pedidos": {
+                
+                break;
+            }
+            default: {
+                throw new RuntimeException("Error: Entidad desconocida");                
+            }
+        }
+    }
+    
+    // Validaciones
+    
     private static boolean cumpleRangoValido(int opcion, int min, int max) {
         return opcion >= min && opcion <= max;
+    }
+    
+    // Otros
+    
+    private static <T> void imprimirPorConsola(List<T> elementos) {
+        System.out.println("");
+        if (elementos.size() == 0) {
+            System.out.println("No hay elementos en la lista");
+        } else {            
+            for (T elemento: elementos) {
+                System.out.println("- " + elemento);
+            }
+        }
+        System.out.println("");
+        
     }
     
     private static void sugerirCargarDatos() {
