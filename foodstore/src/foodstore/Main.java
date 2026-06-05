@@ -23,6 +23,8 @@ public class Main {
     public static void init() {
         int opcionMenu = -1;
         System.out.println("========= SISTEMA DE PEDIDOS (FOOD STORE) ==========");
+        
+        Main.sugerirCargarDatos();
 
         do {
             Main.mostrarMenu();                       
@@ -45,7 +47,7 @@ public class Main {
                 System.out.println("\nError. Por favor inténtelo nuevamente o comuníquese con el administrador");
             }
 
-        } while (opcionMenu != 0);
+        } while (opcionMenu != 0); 
 
         
     }
@@ -169,10 +171,34 @@ public class Main {
         
     }
     
-    
-    
     private static boolean cumpleRangoValido(int opcion, int min, int max) {
         return opcion >= min && opcion <= max;
     }
+    
+    private static void sugerirCargarDatos() {
+        boolean reiterarPregunta = true;
+
+        System.out.print("La aplicación no contiene datos. Desea cargar datos de prueba? (S/N): ");
+        do {            
+            String cargarDatosPrueba = Main.sc.nextLine().trim();
+
+            if (cargarDatosPrueba.trim().toLowerCase().equals("s")) {
+                System.out.println("Cargando datos...");
+                
+                // TODO: inicializar objetos una vez estén hechas las clases
+                
+                System.out.println("Datos cargados OK");
+
+                reiterarPregunta = false;
+
+            } else if (cargarDatosPrueba.trim().toLowerCase().equals("n")) {
+                reiterarPregunta = false;
+                return;
+            } else {
+                System.out.print("Opción inválida. Desea cargar datos de prueba? (S/N): ");      
+            }
+        } while (reiterarPregunta);
+    }        
+    
     
 }
