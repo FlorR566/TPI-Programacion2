@@ -98,19 +98,19 @@ public class Main {
                    // Evaluar la opción de menu principal elegida
                    switch (opcionMenu) {
                        case 1: {
-                           Main.procesarOpcionCRUD(opcionSubmenu, "Categoría"); // crear un enum o mandar la clase?
+                           Main.procesarOpcionCRUD(opcionSubmenu, Categoria.class.getSimpleName());
                            break;
                        }
                        case 2: {
-                           Main.procesarOpcionCRUD(opcionSubmenu, "Productos"); // crear un enum o mandar la clase?
+                           Main.procesarOpcionCRUD(opcionSubmenu, Producto.class.getSimpleName());
                            break;
                        }
                        case 3: {
-                           Main.procesarOpcionCRUD(opcionSubmenu, "Usuarios"); // crear un enum o mandar la clase?
+                           Main.procesarOpcionCRUD(opcionSubmenu, Usuario.class.getSimpleName());
                            break;
                        }
                        case 4: {
-                           Main.procesarOpcionCRUD(opcionSubmenu, "Pedidos"); // crear un enum o mandar la clase?
+                           Main.procesarOpcionCRUD(opcionSubmenu, Pedido.class.getSimpleName());
                            break;
 
                        }   
@@ -129,7 +129,7 @@ public class Main {
         } while (opcionSubmenu != 0);
     }
     
-    private static void procesarOpcionCRUD(int opcionSubmenu, String objeto) {
+    private static <T> void procesarOpcionCRUD(int opcionSubmenu, String nombreClase) {
         boolean errorDeEntrada;                
         
         do {
@@ -138,19 +138,19 @@ public class Main {
             try {
                 switch(opcionSubmenu) {
                     case 1: {
-                        Main.listar(objeto);
+                        Main.listar(nombreClase);
                         break;
                     }
                     case 2: {
-                        Main.crear(objeto);
+                        Main.crear(nombreClase);
                         break;
                     }
                     case 3:{
-                        Main.editar(objeto);
+                        Main.editar(nombreClase);
                         break;
                     }
                     case 4: {
-                        Main.eliminar(objeto);
+                        Main.eliminar(nombreClase);
                         break;
                     }                 
                     default:
@@ -173,21 +173,21 @@ public class Main {
     
     // Operaciones CRUD
     
-    private static void listar(String objeto) {
-        switch(objeto) {
-            case "Categoría": {
+    private static <T> void listar(String nombreClase) {
+        switch(nombreClase) {
+            case "Categoria": {
                 Main.imprimirPorConsola(categorias);
                 break;
             }
-            case "Productos": {
+            case "Producto": {
                 Main.imprimirPorConsola(productos);
                 break;
             }
-            case "Usuarios": {
+            case "Usuario": {
                 Main.imprimirPorConsola(usuarios);
                 break;
             }
-            case "Pedidos": {
+            case "Pedido": {
                 Main.imprimirPorConsola(pedidos);
                 break;
             }
