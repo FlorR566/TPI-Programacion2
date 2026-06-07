@@ -562,9 +562,9 @@ public class Main {
                 // TODO: inicializar objetos una vez estén hechas las clases
                 
 // test para listar elementos eliminados (no debe mostrarse)
-                Categoria c1 = new Categoria("test eliminado", "eliminado, no debería mostrarse");
-                c1.setEliminado(true);
-                Main.categorias.add(c1);
+                // Categoria c1 = new Categoria("test eliminado", "eliminado, no debería mostrarse");
+                // c1.setEliminado(true);
+                // Main.categorias.add(c1);
                 
                 
                 System.out.println("Datos cargados OK");
