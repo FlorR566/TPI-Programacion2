@@ -96,7 +96,7 @@ public class Main {
            try {
                opcionSubmenu = Integer.parseInt(Main.sc.nextLine().trim());
                if (Main.cumpleRangoValido(opcionSubmenu, 0, 4)) {                   
-                   // Evaluar la opción de menu principal elegida
+                   // Evaluar la opción de menu principal elegida (qué entidad fue elegida)
                    switch (opcionMenu) {
                        case 1: {
                            Main.procesarOpcionCRUD(opcionSubmenu, Categoria.class.getSimpleName());
@@ -160,7 +160,7 @@ public class Main {
                 }                
             } catch (IllegalArgumentException e) {
                 System.out.println("Valor/es ingresado/s inválido/s: " + e.getMessage());
-                errorDeEntrada = true;
+                errorDeEntrada = true; // Si se ingresa cualquier input inválido, sigue en el loop
             } catch (RuntimeException e) {
                 System.out.println(e.getMessage());
                 System.out.println("Ha ocurrido un error. Por favor inténtelo nuevamente o comuníquese con el administrador");
@@ -206,8 +206,7 @@ public class Main {
                 System.out.println("\n========== CREAR CATEGORIA ==========\n");
                 System.out.print("Ingrese el nombre: ");
                 
-                nombre = Main.sc.nextLine().trim();
-                System.out.println(nombre);
+                nombre = Main.sc.nextLine().trim();                
                         
                 while (!Validador.validarCadena(nombre)) {
                     System.out.print("Nombre inválido. Inténtelo nuevamente: ");
@@ -218,13 +217,13 @@ public class Main {
                 Base categoriaExistente = Main.findElementoByNombre(nombre, Categoria.class.getSimpleName());
                 
                 if (categoriaExistente != null) {
-                    System.out.println("Una categoría con ese nombre ya existe");
+                    System.out.println("\nUna categoría con ese nombre ya existe");
                     return;
                 }
                 
                 System.out.print("Ingrese la descripcion: ");
 
-                // Seguir pidiendo datos sólo si no existe
+                // Seguir pidiendo datos sólo si no lo encontró previamente
                 descripcion = Main.sc.nextLine().trim();
                         
                 while (!Validador.validarCadena(descripcion)) {
@@ -234,13 +233,11 @@ public class Main {
 
                 Categoria nuevaCategoria = new Categoria(nombre,descripcion);
                 
-                // Agregar a lista correspondiente
-                
+                // Agregar a lista correspondiente                
                 Main.categorias.add(nuevaCategoria);
                 
-                System.out.println("Nueva categoría agregada con ID " + nuevaCategoria.getId());
-                
-                
+                System.out.println("\nNueva categoría agregada con ID " + nuevaCategoria.getId());
+
                 break;
             }
             case "Productos": {                
@@ -264,19 +261,100 @@ public class Main {
     // Pero siempre con el ID del objeto para identificarlo
     private static void editar(String objeto) {
         switch(objeto) {
-            case "Categoría": {
+            case "Categoria": {
+                // si eliminado, informar por consola
+                // si no existe, informar mensaje específico
+                // si eliminado, informar por consola
+                // actualiza sólo nombre y/o descripcion y confirma operación
+                String nombre = "";
+                String descripcion = "";
+                
+                System.out.print("\nIngrese el ID: ");
+                String id = Main.sc.nextLine().trim();
+
+                // Valida input vació, números negativos
+                while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
+                    System.out.print("ID inválido: Ingrese el ID: ");
+                    id = Main.sc.nextLine().trim();
+                }
+                
+                Categoria categoria = (Categoria) Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
+
+                if (categoria == null) {
+                    System.out.println("\nCategoría no encontrada\n");
+                } else {
+                    if (categoria.isEliminado()) {
+                        System.out.println("\nCategoría ya eliminada\n");
+                    } else {
+                        
+                        System.out.println("\nCategoría encontrada: " + categoria + "\n");
+                                          
+                        // Flujo específico para CATEGORIA (cada elemento cambia y hace chequeos específicos)
+                        
+                        System.out.print("Ingrese el nuevo nombre (Presione 'Enter' para conservar el valor actual): ");
+                        nombre = Main.sc.nextLine().trim();
+                        
+                        // Si no ingresa nada o un string vacío, se asume que conserva el nombre actual y avanza el flujo
+                        if (nombre.trim().length() == 0) {
+                            nombre = categoria.getNombre();
+                        }
+                        
+                        System.out.print("Ingrese la nueva descripción (Presione 'Enter' para conservar el valor actual): ");
+                        descripcion = Main.sc.nextLine().trim();
+                        
+                        // Si no ingresa nada o un string vacío, se asume que conserva el nombre actual y avanza el flujo
+                        if (descripcion.trim().length() == 0) {
+                            descripcion = categoria.getDescripcion();
+                        }
+
+                        // Confirmación (verificar respuesta correcta con loop)
+                        // Si no hay cambios, salir
+                        if (nombre.equals(categoria.getNombre()) && descripcion.equals(categoria.getDescripcion())) {
+                                System.out.println("\nNo se registraron cambios. Saliendo\n");
+                        } else {
+                            
+                            System.out.println("\nLa categoría tendrá los siguientes valores:");
+                            System.out.println("Nombre: " + nombre);
+                            System.out.println("Descripción: "+ descripcion);
+
+                            System.out.print("Desea realizar estos cambios? (S/N): ");
+
+                            boolean reiterarPregunta = true;
+
+                            do {            
+                                String respuesta = Main.sc.nextLine().trim();
+
+                                if (respuesta.trim().toLowerCase().equals("s")) {
+
+                                    categoria.setNombre(nombre);
+                                    categoria.setDescripcion(descripcion);
+
+                                    System.out.println("\nCambios realizados");
+
+                                    reiterarPregunta = false;
+                                } else if (respuesta.trim().toLowerCase().equals("n")) {
+                                    System.out.println("\nLos cambios fueron cancelados");
+                                    reiterarPregunta = false;
+                                    break;
+                                } else {
+                                    System.out.print("Opción inválida. Desea realizar estos cambios? (S/N): ");      
+                                }
+                            } while (reiterarPregunta);
+                        }                        
+                    }
+                }
+            
+                break;
+            }
+            case "Producto": {
                 
                 break;
             }
-            case "Productos": {
+            case "Usuario": {
                 
                 break;
             }
-            case "Usuarios": {
-                
-                break;
-            }
-            case "Pedidos": {
+            case "Pedido": {
                 
                 break;
             }
@@ -286,22 +364,65 @@ public class Main {
         }
     }
     
-    // La implementación toma el ID
+    // La implementación toma el ID para buscar y sólo setea eliminado = true;
     private static void eliminar(String objeto) {
         switch(objeto) {
-            case "Categoría": {
+            case "Categoria": {
+                // si eliminado, informar por consola
+                System.out.print("\nIngrese el ID: ");
+                String id = Main.sc.nextLine().trim();
+
+                // Valida input vació, números negativos
+                while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
+                    System.out.print("ID inválido: Ingrese el ID: ");
+                    id = Main.sc.nextLine().trim();
+                }
+                
+                Base categoria = Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
+
+                if (categoria == null) {
+                    System.out.println("\nCategoría no encontrada\n");
+                } else {
+                    if (categoria.isEliminado()) {
+                        System.out.println("\nCategoría ya eliminada\n");
+                    } else {
+                        
+                        System.out.println("\nCategoría encontrada: " + categoria + "\n");
+                        System.out.print("Desea continuar con la eliminación? (S/N): ");
+
+                        boolean reiterarPregunta = true;
+
+                        do {            
+                            String respuesta = Main.sc.nextLine().trim();
+
+                            if (respuesta.trim().toLowerCase().equals("s")) {
+                                categoria.setEliminado(true);
+                        
+                                System.out.println("\nCategoría eliminada\n");     
+
+                                reiterarPregunta = false;
+                            } else if (respuesta.trim().toLowerCase().equals("n")) {
+                                System.out.println("\nEliminación cancelada\n");
+                                reiterarPregunta = false;
+                                break;
+                            } else {
+                                System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");      
+                            }
+                        } while (reiterarPregunta);                                                                
+                    }
+                }
+
+                break;
+            }
+            case "Producto": {
                 
                 break;
             }
-            case "Productos": {
+            case "Usuario": {
                 
                 break;
             }
-            case "Usuarios": {
-                
-                break;
-            }
-            case "Pedidos": {
+            case "Pedido": {
                 
                 break;
             }
@@ -317,6 +438,8 @@ public class Main {
         return opcion >= min && opcion <= max;
     }
     
+  
+    // Sólo para categorias, productos y usuarios
     private static Base findElementoByNombre(String nombre, String nombreClase) {
         if (nombreClase.toLowerCase().equals("categoria")) {
             for (Categoria categoria: Main.categorias) {
@@ -337,19 +460,70 @@ public class Main {
                 }
             }
         } else {
-            throw new RuntimeException("Error nombreClase buscando elemento: "+ nombreClase);
+            throw new RuntimeException("Error nombreClase buscando elemento por nombre: "+ nombreClase);
         }                     
         // Devolver null si no encuentra nada               
         return null;
     }
     
+    // Para editar o eliminar cualquier entidad (busca TODOS los elementos, eliminados o no)
+    private static Base findElementoById(int id, String nombreClase) {        
+        if (nombreClase.toLowerCase().equals("categoria")) {
+            for (Categoria categoria: Main.categorias) {
+                if (categoria.getId() == id){
+                    return categoria;
+                }
+            }
+        } else if (nombreClase.toLowerCase().equals("producto")) {
+            for (Producto producto: Main.productos) {
+                if (producto.getId() == id){
+                    return producto;
+                }
+            }
+        } else if (nombreClase.toLowerCase().equals("usuario")) {
+            for (Usuario usuario: Main.usuarios) {
+                if (usuario.getId() == id){
+                    return usuario;
+                }
+            }
+        } else if (nombreClase.toLowerCase().equals("pedido")) {
+            for (Pedido pedido: Main.pedidos) {
+                if (pedido.getId() == id){
+                    return pedido;
+                }
+            }
+        } else {
+            throw new RuntimeException("Error nombreClase buscando elemento por id: "+ nombreClase);
+        }                     
+        // Devolver null si no encuentra nada               
+        return null;
+    }
+    
+    private static <T> List<T> filtrarElementosEliminados(List<T> elementos) {
+
+        List<T> listaNoEliminados = new ArrayList<>();
+        
+        for (T elemento: elementos) {
+            if (elemento instanceof Base) { // necesario para poder invocar isEliminado
+                boolean eliminado = ((Base) elemento).isEliminado();
+                if (!eliminado) {                                                
+                    listaNoEliminados.add(elemento);
+                }
+            }
+        }        
+        return listaNoEliminados;
+    }
     
     // Otros
-    
+
     private static <T> void imprimirPorConsola(List<T> elementos, String nombreClase) {
-        System.out.println("");        
         
-        if (elementos.size() == 0) {
+        System.out.println("");
+        
+        // Primero filtrar los eliminados
+        List<T> listaFiltrada = Main.filtrarElementosEliminados(elementos);
+        
+        if (listaFiltrada.size() == 0) {
             String mensaje =  "";
             
             if (nombreClase.toLowerCase().equals("categoria")) {
@@ -365,15 +539,16 @@ public class Main {
             }
 
             System.out.println(mensaje);
-        } else {            
-            for (T elemento: elementos) {
-                System.out.println("- " + elemento);
+        } else {
+            for (T elemento: listaFiltrada) {
+                System.out.println("- " + elemento);                
             }
             System.out.println("");
         }
         
     }
     
+    // útil para debuggear (crear elementos para testear
     private static void sugerirCargarDatos() {
         boolean reiterarPregunta = true;
 
@@ -385,6 +560,12 @@ public class Main {
                 System.out.println("Cargando datos...");
                 
                 // TODO: inicializar objetos una vez estén hechas las clases
+                
+// test para listar elementos eliminados (no debe mostrarse)
+                Categoria c1 = new Categoria("test eliminado", "eliminado, no debería mostrarse");
+                c1.setEliminado(true);
+                Main.categorias.add(c1);
+                
                 
                 System.out.println("Datos cargados OK");
 

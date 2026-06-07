@@ -10,12 +10,12 @@ public class Validador {
         return numero > 0;
     }
     
-    // Verifica mediante regex que el string sea de tipo dígito (doble o entero) positivo
+    // Verifica mediante regex que el string sea de tipo dígito (doble o entero) positivo (precios, etc)
     public static boolean esDigitoPositivoValido(String cadena) {
         return (cadena.matches("^\\d+\\.\\d+$") || cadena.matches("^\\d+$") ) && Validador.validarNumero(Double.parseDouble(cadena));
     }
     
-    // Verifica mediante regex que el string sea de tipo dígito entero positivo
+    // Verifica mediante regex que el string sea de tipo dígito entero positivo (ids)
     public static boolean esCodigoValido(String cadena) {
         return cadena.matches("^\\d+$");
     }
