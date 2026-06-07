@@ -6,6 +6,7 @@ import foodstore.entities.Categoria;
 import foodstore.entities.Pedido;
 import foodstore.entities.Producto;
 import foodstore.entities.Usuario;
+import foodstore.utils.Validador;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -156,39 +157,36 @@ public class Main {
                     default:
                         System.out.println("\nOpción inválida\n");
                         break;
-                }
-                
+                }                
             } catch (IllegalArgumentException e) {
                 System.out.println("Valor/es ingresado/s inválido/s: " + e.getMessage());
                 errorDeEntrada = true;
             } catch (RuntimeException e) {
-                System.out.println("Error. Por favor inténtelo nuevamente o comuníquese con el administrador");
-                errorDeEntrada = true;
-            }
-            
-        } while (errorDeEntrada);
-        
+                System.out.println(e.getMessage());
+                System.out.println("Ha ocurrido un error. Por favor inténtelo nuevamente o comuníquese con el administrador");
+                errorDeEntrada = false; // este error tiene que subir
+            }            
+        } while (errorDeEntrada);        
     }
-    
-    
+        
     // Operaciones CRUD
     
-    private static <T> void listar(String nombreClase) {
+    private static void listar(String nombreClase) {           
         switch(nombreClase) {
             case "Categoria": {
-                Main.imprimirPorConsola(categorias);
+                Main.imprimirPorConsola(categorias, nombreClase);
                 break;
             }
             case "Producto": {
-                Main.imprimirPorConsola(productos);
+                Main.imprimirPorConsola(productos, nombreClase);
                 break;
             }
             case "Usuario": {
-                Main.imprimirPorConsola(usuarios);
+                Main.imprimirPorConsola(usuarios, nombreClase);
                 break;
             }
             case "Pedido": {
-                Main.imprimirPorConsola(pedidos);
+                Main.imprimirPorConsola(pedidos, nombreClase);
                 break;
             }
             default: {
@@ -197,16 +195,55 @@ public class Main {
         }
     }
     
-    
     // La implementación varía según cada objeto concreto (argumentos específicos para tomar con el scanner)
-    private static void crear(String objeto) {
+    private static void crear(String objeto) {        
         switch(objeto) {
-            case "Categoría": {
-                // validar el input
+            case "Categoria": {
+                String nombre;
+                String descripcion;
+                
+                // Tomar argumentos
+                System.out.println("\n========== CREAR CATEGORIA ==========\n");
+                System.out.print("Ingrese el nombre: ");
+                
+                nombre = Main.sc.nextLine().trim();
+                System.out.println(nombre);
+                        
+                while (!Validador.validarCadena(nombre)) {
+                    System.out.print("Nombre inválido. Inténtelo nuevamente: ");
+                    nombre = Main.sc.nextLine().trim();
+                }
+                
+                // Verificar que no exista ya la misma categoría               
+                Base categoriaExistente = Main.findElementoByNombre(nombre, Categoria.class.getSimpleName());
+                
+                if (categoriaExistente != null) {
+                    System.out.println("Una categoría con ese nombre ya existe");
+                    return;
+                }
+                
+                System.out.print("Ingrese la descripcion: ");
+
+                // Seguir pidiendo datos sólo si no existe
+                descripcion = Main.sc.nextLine().trim();
+                        
+                while (!Validador.validarCadena(descripcion)) {
+                    System.out.print("Descripcion inválida. Inténtelo nuevamente: ");
+                    descripcion = Main.sc.nextLine().trim();
+                }
+
+                Categoria nuevaCategoria = new Categoria(nombre,descripcion);
+                
+                // Agregar a lista correspondiente
+                
+                Main.categorias.add(nuevaCategoria);
+                
+                System.out.println("Nueva categoría agregada con ID " + nuevaCategoria.getId());
+                
+                
                 break;
             }
-            case "Productos": {
-                
+            case "Productos": {                
                 break;
             }
             case "Usuarios": {
@@ -218,7 +255,7 @@ public class Main {
                 break;
             }
             default: {
-                throw new RuntimeException("Error: Entidad desconocida");                
+                throw new RuntimeException("Error: Imposible crear objeto");
             }
         }
     }
@@ -244,7 +281,7 @@ public class Main {
                 break;
             }
             default: {
-                throw new RuntimeException("Error: Entidad desconocida");                
+                throw new RuntimeException("Error: Imposible editar objeto");
             }
         }
     }
@@ -269,29 +306,71 @@ public class Main {
                 break;
             }
             default: {
-                throw new RuntimeException("Error: Entidad desconocida");                
+                throw new RuntimeException("Error: Imposible eliminar objeto");
             }
         }
     }
     
-    // Validaciones
+    // Validaciones / Métodos auxiliares
     
     private static boolean cumpleRangoValido(int opcion, int min, int max) {
         return opcion >= min && opcion <= max;
     }
     
+    private static Base findElementoByNombre(String nombre, String nombreClase) {
+        if (nombreClase.toLowerCase().equals("categoria")) {
+            for (Categoria categoria: Main.categorias) {
+                if (categoria.getNombre().toLowerCase().equals(nombre)){
+                    return categoria;
+                }
+            }
+        } else if (nombreClase.toLowerCase().equals("producto")) {
+            for (Producto producto: Main.productos) {
+                if (producto.getNombre().toLowerCase().equals(nombre)){
+                    return producto;
+                }
+            }
+        } else if (nombreClase.toLowerCase().equals("usuario")) {
+            for (Usuario usuario: Main.usuarios) {
+                if (usuario.getNombre().toLowerCase().equals(nombre)){
+                    return usuario;
+                }
+            }
+        } else {
+            throw new RuntimeException("Error nombreClase buscando elemento: "+ nombreClase);
+        }                     
+        // Devolver null si no encuentra nada               
+        return null;
+    }
+    
+    
     // Otros
     
-    private static <T> void imprimirPorConsola(List<T> elementos) {
-        System.out.println("");
+    private static <T> void imprimirPorConsola(List<T> elementos, String nombreClase) {
+        System.out.println("");        
+        
         if (elementos.size() == 0) {
-            System.out.println("No hay elementos en la lista");
+            String mensaje =  "";
+            
+            if (nombreClase.toLowerCase().equals("categoria")) {
+                mensaje = "No hay categorías cargadas";
+            } else if (nombreClase.toLowerCase().equals("producto")) {
+                mensaje = "No hay productos cargados";
+            } else if (nombreClase.toLowerCase().equals("usuario")) {
+                mensaje = "No hay usuarios cargados";
+            } else if (nombreClase.toLowerCase().equals("pedido")) {
+                mensaje = "No hay pedidos cargados";
+            } else {
+                throw new RuntimeException("Error nombreClase listando elementos: "+ nombreClase);
+            }
+
+            System.out.println(mensaje);
         } else {            
             for (T elemento: elementos) {
                 System.out.println("- " + elemento);
             }
+            System.out.println("");
         }
-        System.out.println("");
         
     }
     

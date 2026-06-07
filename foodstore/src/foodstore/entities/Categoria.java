@@ -79,7 +79,7 @@ public class Categoria extends Base {
             listaProductos = "Sin productos";
         }
         
-        String cadena = String.format("Categoría #%d: %s \n Descripción: %s \n Productos: \n%s \n Fecha creación: %s \n", this.getId(), nombre, descripcion, listaProductos, this.getCreatedAt().toString());
+        String cadena = String.format("Categoría #%d: %s \n Descripción: %s \n Productos: \n %s \n Fecha creación: %s \n", this.getId(), nombre, descripcion, listaProductos, this.getCreatedAt().toString());
         
         return cadena;
     }
