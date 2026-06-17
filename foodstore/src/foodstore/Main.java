@@ -298,11 +298,11 @@ public class Main {
 
                 Base categoriaBuscada = Main.findElementoByNombre(nombreCategoria, Categoria.class.getSimpleName());
 
-                while (categoriaBuscada == null) {
-                    System.out.print("Categoría no encontrada. Inténtelo nuevamente: ");
-                    nombreCategoria = Main.sc.nextLine().trim();
-                    categoriaBuscada = Main.findElementoByNombre(nombreCategoria, Categoria.class.getSimpleName());
+                if (categoriaBuscada == null) {
+                    System.out.println("\nCategoría no encontrada.");
+                    return;
                 }
+
                 Categoria categoria = (Categoria) categoriaBuscada;   // Casteamos de tipo Base a Categoria
 
                 // ================== Constructor
