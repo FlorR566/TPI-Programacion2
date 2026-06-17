@@ -111,12 +111,15 @@ public class Producto extends Base {
     }
 
     @Override
-    public String toString() {      
-        
-        String cadena = String.format("Producto #%d: %s \n Descripción: %s \n Stock: %d \n Precio: $ %.2f \n Categoría: %s \n Imagen: %s \n Fecha agregado: %s \n", 
-                this.getId(), this.getNombre(), this.getDescripcion(), this.getStock(), this.getPrecio(), this.categoria.getNombre(), this.getImagen(), this.getCreatedAt().toString());
-        
-        return cadena;
+    public String toString() {
+        // Formato en una sola fila compacta: [ID] Nombre | Categoría | Precio: $X | Stock: X
+        return String.format("[ID: %d] %-20s | Cat: %-15s | Precio: $ %-8.2f | Stock: %d",
+                this.getId(),
+                this.getNombre(),
+                this.categoria.getNombre(),
+                this.getPrecio(),
+                this.getStock()
+        );
     }
     
     
