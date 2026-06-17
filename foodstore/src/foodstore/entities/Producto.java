@@ -67,7 +67,7 @@ public class Producto extends Base {
          if (stock >= 0) {
             this.stock = stock;
         } else {
-            throw new IllegalArgumentException("Precio producto inválido");
+            throw new IllegalArgumentException("Stock producto inválido");
         }
     }
 

@@ -240,7 +240,79 @@ public class Main {
 
                 break;
             }
-            case "Productos": {                
+            case "Producto": {
+                // Tomar argumentos
+                System.out.println("\n========== CREAR PRODUCTO ==========\n");
+                System.out.print("Ingrese el nombre: ");
+                String nombre = Main.sc.nextLine().trim();
+
+                while (!Validador.validarCadena(nombre)) {
+                    System.out.print("Nombre inválido. Inténtelo nuevamente: ");
+                    nombre = Main.sc.nextLine().trim();
+                }
+
+                // Verificar que no exista ya el mismo producto
+                Base productoExistente = Main.findElementoByNombre(nombre, Producto.class.getSimpleName());
+
+                if (productoExistente != null) {
+                    System.out.println("\nUn producto con ese nombre ya existe.");
+                    return;
+                }
+
+                // ==================
+                System.out.print("Ingrese el precio: ");
+                String precioIngresado = Main.sc.nextLine().trim();
+
+                while (!Validador.esDigitoPositivoValido(precioIngresado)) {
+                    System.out.print("\nPrecio inválido. Inténtelo nuevamente: ");
+                    precioIngresado = Main.sc.nextLine().trim();
+                }
+                double precio = Double.parseDouble(precioIngresado);
+
+                // ==================
+                System.out.print("Ingrese la descripcion: ");
+                String descripcion = Main.sc.nextLine().trim();
+
+                while (!Validador.validarCadena(descripcion)) {
+                    System.out.print("Descripción inválida. Inténtelo nuevamente: ");
+                    descripcion = Main.sc.nextLine().trim();
+                }
+
+                // ==================
+                System.out.print("Ingrese el stock: ");
+                String stockIngresado = Main.sc.nextLine().trim();
+
+                while (!Validador.esNumeroEnteroValido(stockIngresado)) {
+                    System.out.print("Stock inválido. Inténtelo nuevamente: ");
+                    stockIngresado = Main.sc.nextLine().trim();
+                }
+                int stock = Integer.parseInt(stockIngresado);
+
+                // ==================
+                // Autogenera el nombre de la imagen en base al nombre del producto
+                String imagen = nombre.toLowerCase().replace(" ", "") + ".png";
+
+                // ==================
+                System.out.print("Ingrese el nombre de la categoria para este producto: ");
+                String nombreCategoria = Main.sc.nextLine().trim();
+
+                Base categoriaBuscada = Main.findElementoByNombre(nombreCategoria, Categoria.class.getSimpleName());
+
+                while (categoriaBuscada == null) {
+                    System.out.print("Categoría no encontrada. Inténtelo nuevamente: ");
+                    nombreCategoria = Main.sc.nextLine().trim();
+                    categoriaBuscada = Main.findElementoByNombre(nombreCategoria, Categoria.class.getSimpleName());
+                }
+                Categoria categoria = (Categoria) categoriaBuscada;   // Casteamos de tipo Base a Categoria
+
+                // ================== Constructor
+                Producto nuevoProducto = new Producto(nombre, precio, descripcion, stock, imagen, categoria );
+
+                // Agregar a lista correspondiente
+                Main.productos.add(nuevoProducto);
+
+                System.out.println("\nNuevo producto agregado con ID " + nuevoProducto.getId());
+
                 break;
             }
             case "Usuarios": {
