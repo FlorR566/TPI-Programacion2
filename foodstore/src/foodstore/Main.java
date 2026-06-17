@@ -513,21 +513,21 @@ public class Main {
   
     // Sólo para categorias, productos y usuarios
     private static Base findElementoByNombre(String nombre, String nombreClase) {
-        if (nombreClase.toLowerCase().equals("categoria")) {
+        if (nombreClase.equalsIgnoreCase("categoria")) {
             for (Categoria categoria: Main.categorias) {
-                if (categoria.getNombre().toLowerCase().equals(nombre)){
+                if (categoria.getNombre().equalsIgnoreCase(nombre)){
                     return categoria;
                 }
             }
-        } else if (nombreClase.toLowerCase().equals("producto")) {
+        } else if (nombreClase.equalsIgnoreCase("producto")) {
             for (Producto producto: Main.productos) {
-                if (producto.getNombre().toLowerCase().equals(nombre)){
+                if (producto.getNombre().equalsIgnoreCase(nombre)){
                     return producto;
                 }
             }
-        } else if (nombreClase.toLowerCase().equals("usuario")) {
+        } else if (nombreClase.equalsIgnoreCase("usuario")) {
             for (Usuario usuario: Main.usuarios) {
-                if (usuario.getNombre().toLowerCase().equals(nombre)){
+                if (usuario.getNombre().equalsIgnoreCase(nombre)){
                     return usuario;
                 }
             }
