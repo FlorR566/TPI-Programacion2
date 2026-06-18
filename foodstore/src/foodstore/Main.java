@@ -6,6 +6,7 @@ import foodstore.entities.Categoria;
 import foodstore.entities.Pedido;
 import foodstore.entities.Producto;
 import foodstore.entities.Usuario;
+import foodstore.enums.TipoValidacion;
 import foodstore.utils.Validador;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ public class Main {
     
     private static void init() {
         int opcionMenu = -1;
-        System.out.println("========= SISTEMA DE PEDIDOS (FOOD STORE) ==========");
+        System.out.println("\n========= SISTEMA DE PEDIDOS (FOOD STORE) ==========");
         
         Main.sugerirCargarDatos();
 
@@ -240,7 +241,79 @@ public class Main {
 
                 break;
             }
-            case "Productos": {                
+            case "Producto": {
+                // Tomar argumentos
+                System.out.println("\n========== CREAR PRODUCTO ==========\n");
+                System.out.print("Ingrese el nombre: ");
+                String nombre = Main.sc.nextLine().trim();
+
+                while (!Validador.validarCadena(nombre)) {
+                    System.out.print("Nombre inválido. Inténtelo nuevamente: ");
+                    nombre = Main.sc.nextLine().trim();
+                }
+
+                // Verificar que no exista ya el mismo producto
+                Base productoExistente = Main.findElementoByNombre(nombre, Producto.class.getSimpleName());
+
+                if (productoExistente != null) {
+                    System.out.println("\nUn producto con ese nombre ya existe.");
+                    return;
+                }
+
+                // ==================
+                System.out.print("Ingrese el precio: ");
+                String precioIngresado = Main.sc.nextLine().trim();
+
+                while (!Validador.esDigitoNoNegativoValido(precioIngresado)) {
+                    System.out.print("Precio inválido. Inténtelo nuevamente: ");
+                    precioIngresado = Main.sc.nextLine().trim();
+                }
+                double precio = Double.parseDouble(precioIngresado);
+
+                // ==================
+                System.out.print("Ingrese la descripcion: ");
+                String descripcion = Main.sc.nextLine().trim();
+
+                while (!Validador.validarCadena(descripcion)) {
+                    System.out.print("Descripción inválida. Inténtelo nuevamente: ");
+                    descripcion = Main.sc.nextLine().trim();
+                }
+
+                // ==================
+                System.out.print("Ingrese el stock: ");
+                String stockIngresado = Main.sc.nextLine().trim();
+
+                while (!Validador.esNumeroEnteroNoNegativoValido(stockIngresado)) {
+                    System.out.print("Stock inválido. Inténtelo nuevamente: ");
+                    stockIngresado = Main.sc.nextLine().trim();
+                }
+                int stock = Integer.parseInt(stockIngresado);
+
+                // ==================
+                // Autogenera el nombre de la imagen en base al nombre del producto
+                String imagen = nombre.toLowerCase().replace(" ", "") + ".png";
+
+                // ==================
+                System.out.print("Ingrese el nombre de la categoria para este producto: ");
+                String nombreCategoria = Main.sc.nextLine().trim();
+
+                Base categoriaBuscada = Main.findElementoByNombre(nombreCategoria, Categoria.class.getSimpleName());
+
+                if (categoriaBuscada == null) {
+                    System.out.println("\nCategoría no encontrada");
+                    return;
+                }
+
+                Categoria categoria = (Categoria) categoriaBuscada;   // Casteamos de tipo Base a Categoria
+
+                // ==================
+                Producto nuevoProducto = new Producto(nombre, precio, descripcion, stock, imagen, categoria );
+
+                // Agregar a lista correspondiente
+                Main.productos.add(nuevoProducto);
+
+                System.out.println("\nNuevo producto agregado con ID " + nuevoProducto.getId());
+
                 break;
             }
             case "Usuarios": {
@@ -262,21 +335,15 @@ public class Main {
     private static void editar(String objeto) {
         switch(objeto) {
             case "Categoria": {
+                System.out.println("\n========== EDITAR CATEGORIA ==========\n");
                 // si eliminado, informar por consola
                 // si no existe, informar mensaje específico
                 // si eliminado, informar por consola
                 // actualiza sólo nombre y/o descripcion y confirma operación
                 String nombre = "";
                 String descripcion = "";
-                
-                System.out.print("\nIngrese el ID: ");
-                String id = Main.sc.nextLine().trim();
 
-                // Valida input vació, números negativos
-                while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
-                    System.out.print("ID inválido: Ingrese el ID: ");
-                    id = Main.sc.nextLine().trim();
-                }
+                String id = pedirIdValido(); // Valida input vacío y números negativos
                 
                 Categoria categoria = (Categoria) Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
 
@@ -347,7 +414,7 @@ public class Main {
                 break;
             }
             case "Producto": {
-                
+                flujoEditarProducto();
                 break;
             }
             case "Usuario": {
@@ -368,15 +435,10 @@ public class Main {
     private static void eliminar(String objeto) {
         switch(objeto) {
             case "Categoria": {
+                System.out.println("\n========== ELIMINAR CATEGORIA ==========\n");
                 // si eliminado, informar por consola
-                System.out.print("\nIngrese el ID: ");
-                String id = Main.sc.nextLine().trim();
 
-                // Valida input vació, números negativos
-                while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
-                    System.out.print("ID inválido: Ingrese el ID: ");
-                    id = Main.sc.nextLine().trim();
-                }
+                String id = pedirIdValido(); // Valida input vacío y números negativos
                 
                 Base categoria = Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
 
@@ -415,7 +477,48 @@ public class Main {
                 break;
             }
             case "Producto": {
-                
+                System.out.println("\n========== ELIMINAR PRODUCTO ==========\n");
+                // si eliminado, informar por consola
+                String id = pedirIdValido(); // Valida input vacío y números negativos
+
+                Base elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
+
+                if (!(elemento instanceof Producto)) {
+                    System.out.println("\nProducto no encontrado\n");
+                    return;
+                }
+
+                Producto producto = (Producto) elemento;
+
+                if (producto.isEliminado()) {
+                    System.out.println("\nProducto ya eliminado\n");
+                    return;
+                }
+
+                System.out.println("\nProducto encontrado: " + producto + "\n");
+                System.out.print("Desea continuar con la eliminación? (S/N): ");
+
+                boolean reiterarPregunta = true;
+
+                do {
+                    String respuesta = Main.sc.nextLine().trim();
+
+                    if (respuesta.trim().toLowerCase().equals("s")) {
+                        producto.setEliminado(true);
+
+                        System.out.println("\nProducto eliminado\n");
+
+                        reiterarPregunta = false;
+                    } else if (respuesta.trim().toLowerCase().equals("n")) {
+                        System.out.println("\nEliminación cancelada\n");
+                        reiterarPregunta = false;
+                        break;
+                    } else {
+                        System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");
+                    }
+                } while (reiterarPregunta);
+
+
                 break;
             }
             case "Usuario": {
@@ -441,21 +544,21 @@ public class Main {
   
     // Sólo para categorias, productos y usuarios
     private static Base findElementoByNombre(String nombre, String nombreClase) {
-        if (nombreClase.toLowerCase().equals("categoria")) {
+        if (nombreClase.equalsIgnoreCase("categoria")) {
             for (Categoria categoria: Main.categorias) {
-                if (categoria.getNombre().toLowerCase().equals(nombre)){
+                if (categoria.getNombre().equalsIgnoreCase(nombre)){
                     return categoria;
                 }
             }
-        } else if (nombreClase.toLowerCase().equals("producto")) {
+        } else if (nombreClase.equalsIgnoreCase("producto")) {
             for (Producto producto: Main.productos) {
-                if (producto.getNombre().toLowerCase().equals(nombre)){
+                if (producto.getNombre().equalsIgnoreCase(nombre)){
                     return producto;
                 }
             }
-        } else if (nombreClase.toLowerCase().equals("usuario")) {
+        } else if (nombreClase.equalsIgnoreCase("usuario")) {
             for (Usuario usuario: Main.usuarios) {
-                if (usuario.getNombre().toLowerCase().equals(nombre)){
+                if (usuario.getNombre().equalsIgnoreCase(nombre)){
                     return usuario;
                 }
             }
@@ -579,6 +682,124 @@ public class Main {
             }
         } while (reiterarPregunta);
     }        
-    
-    
+
+
+    private static void flujoEditarProducto() {
+        System.out.println("\n========== EDITAR PRODUCTO ==========\n");
+        // si eliminado, informar por consola
+        // si no existe, informar mensaje específico
+        // si eliminado, informar por consola
+        // actualiza solo precio y/o stock y/o categoria y confirma operación
+
+        String id = pedirIdValido(); // Valida input vacío y números negativos
+
+        Base elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
+
+        if (!(elemento instanceof Producto)) {
+            System.out.println("\nProducto no encontrado\n");
+            return;
+        }
+        Producto producto = (Producto) elemento;
+
+        if (producto.isEliminado()) {
+            System.out.println("\nProducto ya eliminado\n");
+            return;
+        }
+
+        System.out.println("\nProducto encontrado: " + producto + "\n");
+
+        // Edición de campos
+        double precio = Double.parseDouble(solicitarCampoGenerico("precio", Double.toString(producto.getPrecio()), TipoValidacion.DECIMAL_NO_NEGATIVO));
+        int stock = Integer.parseInt(solicitarCampoGenerico("stock", Integer.toString(producto.getStock()), TipoValidacion.ENTERO_NO_NEGATIVO));
+        Categoria categoria = solicitarNuevaCategoria(producto);
+
+        if (categoria == null) return; // Si la categoría no existe, corta acá
+
+        // Confirmación de cambios
+        if (Double.compare(precio, producto.getPrecio()) == 0 && stock == producto.getStock() && categoria.equals(producto.getCategoria())) {
+            System.out.println("\nNo se registraron cambios. Saliendo\n");
+            return;
+        }
+
+        mostrarResumenCambios(precio, stock, categoria);
+
+        if (confirmarCambios()) {
+            producto.setPrecio(precio);
+            producto.setStock(stock);
+            producto.setCategoria(categoria);
+            System.out.println("\nCambios realizados");
+        } else {
+            System.out.println("\nLos cambios fueron cancelados");
+        }
+    }
+
+    private static String solicitarCampoGenerico(String nombreCampo, String valorActual, TipoValidacion tipoValidacion) {
+        System.out.print("Ingrese el nuevo " + nombreCampo + " (Presione 'Enter' para conservar el valor actual): ");
+        String entrada = Main.sc.nextLine().trim();
+
+        if (entrada.isEmpty()) return valorActual; // Si da enter directo, devuelve el valor que ya tenía
+
+        // Bucle dinámico según el tipo de validación que se le pida
+        while (true) {
+            boolean esValido = false;
+
+            if (tipoValidacion == TipoValidacion.ENTERO_NO_NEGATIVO) {
+                esValido = Validador.esNumeroEnteroNoNegativoValido(entrada);
+            } else if (tipoValidacion == TipoValidacion.DECIMAL_NO_NEGATIVO) {
+                esValido = Validador.esDigitoNoNegativoValido(entrada);
+            }
+
+            if (esValido) break; // Si pasó la prueba, rompemos el bucle
+
+            // Si no es válido, vuelve a pedir
+            System.out.print(nombreCampo + " inválido. Inténtelo nuevamente (o Enter para conservar): ");
+            entrada = Main.sc.nextLine().trim();
+            if (entrada.isEmpty()) return valorActual;
+        }
+        return entrada;
+    }
+
+    private static Categoria solicitarNuevaCategoria(Producto producto) {
+        System.out.print("Ingrese la nueva Categoría (Presione 'Enter' para conservar el valor actual): ");
+        String nuevaCategoria = Main.sc.nextLine().trim();
+
+        if (nuevaCategoria.isEmpty()) return producto.getCategoria();
+
+        Base categoriaBuscada = Main.findElementoByNombre(nuevaCategoria, Categoria.class.getSimpleName());
+        if (categoriaBuscada == null) {
+            System.out.println("\nCategoría no encontrada.\n");
+            return null;
+        }
+        return (Categoria) categoriaBuscada;
+    }
+
+    private static void mostrarResumenCambios(double precio, int stock, Categoria categoria) {
+        System.out.println("\nEl producto tendrá los siguientes valores:");
+        System.out.println("Precio: $ " + precio);
+        System.out.println("Stock: " + stock);
+        System.out.println("Categoría: " + categoria.getNombre());
+    }
+
+    private static boolean confirmarCambios() {
+        System.out.print("\n¿Desea realizar estos cambios? (S/N): ");
+
+        while(true) {
+            String respuesta =  Main.sc.nextLine().trim().toLowerCase();
+            if (respuesta.equals("s")) return true;
+            if (respuesta.equals("n")) return false;
+            System.out.print("Opción inválida. ¿Desea realizar estos cambios? (S/N): ");
+        }
+    }
+
+    private static String pedirIdValido() {
+        System.out.print("Ingrese el ID: ");
+        String id = Main.sc.nextLine().trim();
+
+        // Valida input vacío y números negativos
+        while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
+            System.out.print("ID inválido. Ingrese el ID: ");
+            id = Main.sc.nextLine().trim();
+        }
+        return id;
+    }
 }

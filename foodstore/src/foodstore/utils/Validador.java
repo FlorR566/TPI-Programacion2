@@ -23,5 +23,16 @@ public class Validador {
     public static boolean esNumeroEnteroValido(String cadena) {
         return cadena.matches("^\\d+$") && Integer.parseInt(cadena) > 0;
     }
-    
+
+    // Acepta 0 o cualquier decimal positivo (para precio)
+    public static boolean esDigitoNoNegativoValido(String cadena) {
+        return (cadena.matches("^\\d+\\.\\d+$") || cadena.matches("^\\d+$"))
+                && Double.parseDouble(cadena) >= 0;
+    }
+
+    // Acepta 0 o cualquier entero positivo (para stock)
+    public static boolean esNumeroEnteroNoNegativoValido(String cadena) {
+        return cadena.matches("^\\d+$") && Integer.parseInt(cadena) >= 0;
+    }
+
 }
