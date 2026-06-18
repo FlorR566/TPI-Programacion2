@@ -33,7 +33,7 @@ public class Main {
     
     private static void init() {
         int opcionMenu = -1;
-        System.out.println("========= SISTEMA DE PEDIDOS (FOOD STORE) ==========");
+        System.out.println("\n========= SISTEMA DE PEDIDOS (FOOD STORE) ==========");
         
         Main.sugerirCargarDatos();
 
@@ -335,21 +335,15 @@ public class Main {
     private static void editar(String objeto) {
         switch(objeto) {
             case "Categoria": {
+                System.out.println("\n========== EDITAR CATEGORIA ==========\n");
                 // si eliminado, informar por consola
                 // si no existe, informar mensaje específico
                 // si eliminado, informar por consola
                 // actualiza sólo nombre y/o descripcion y confirma operación
                 String nombre = "";
                 String descripcion = "";
-                
-                System.out.print("\nIngrese el ID: ");
-                String id = Main.sc.nextLine().trim();
 
-                // Valida input vació, números negativos
-                while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
-                    System.out.print("ID inválido: Ingrese el ID: ");
-                    id = Main.sc.nextLine().trim();
-                }
+                String id = pedirIdValido(); // Valida input vacío y números negativos
                 
                 Categoria categoria = (Categoria) Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
 
@@ -441,15 +435,10 @@ public class Main {
     private static void eliminar(String objeto) {
         switch(objeto) {
             case "Categoria": {
+                System.out.println("\n========== ELIMINAR CATEGORIA ==========\n");
                 // si eliminado, informar por consola
-                System.out.print("\nIngrese el ID: ");
-                String id = Main.sc.nextLine().trim();
 
-                // Valida input vació, números negativos
-                while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
-                    System.out.print("ID inválido: Ingrese el ID: ");
-                    id = Main.sc.nextLine().trim();
-                }
+                String id = pedirIdValido(); // Valida input vacío y números negativos
                 
                 Base categoria = Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
 
@@ -488,7 +477,10 @@ public class Main {
                 break;
             }
             case "Producto": {
-                
+                System.out.println("\n========== ELIMINAR PRODUCTO ==========\n");
+                // si eliminado, informar por consola
+                String id = pedirIdValido(); // Valida input vacío y números negativos
+
                 break;
             }
             case "Usuario": {
@@ -655,18 +647,13 @@ public class Main {
 
 
     private static void flujoEditarProducto() {
+        System.out.println("\n========== EDITAR PRODUCTO ==========\n");
         // si eliminado, informar por consola
         // si no existe, informar mensaje específico
         // si eliminado, informar por consola
         // actualiza solo precio y/o stock y/o categoria y confirma operación
-        System.out.print("Ingrese el ID: ");
-        String id = Main.sc.nextLine().trim();
 
-        // Valida input vacío y números negativos
-        while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
-            System.out.print("ID inválido. Ingrese el ID: ");
-            id = Main.sc.nextLine().trim();
-        }
+        String id = pedirIdValido(); // Valida input vacío y números negativos
 
         Base elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
 
@@ -764,5 +751,17 @@ public class Main {
             if (respuesta.equals("n")) return false;
             System.out.print("Opción inválida. ¿Desea realizar estos cambios? (S/N): ");
         }
+    }
+
+    private static String pedirIdValido() {
+        System.out.print("Ingrese el ID: ");
+        String id = Main.sc.nextLine().trim();
+
+        // Valida input vacío y números negativos
+        while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
+            System.out.print("ID inválido. Ingrese el ID: ");
+            id = Main.sc.nextLine().trim();
+        }
+        return id;
     }
 }
