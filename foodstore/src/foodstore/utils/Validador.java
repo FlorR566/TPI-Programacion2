@@ -24,7 +24,7 @@ public class Validador {
         return cadena.matches("^\\d+$") && Integer.parseInt(cadena) > 0;
     }
 
-    // Acepta 0 o ualquier decimal positivo (para precio)
+    // Acepta 0 o cualquier decimal positivo (para precio)
     public static boolean esDigitoNoNegativoValido(String cadena) {
         return (cadena.matches("^\\d+\\.\\d+$") || cadena.matches("^\\d+$"))
                 && Double.parseDouble(cadena) >= 0;

@@ -6,6 +6,7 @@ import foodstore.entities.Categoria;
 import foodstore.entities.Pedido;
 import foodstore.entities.Producto;
 import foodstore.entities.Usuario;
+import foodstore.enums.TipoValidacion;
 import foodstore.utils.Validador;
 import java.util.ArrayList;
 import java.util.List;
@@ -419,130 +420,7 @@ public class Main {
                 break;
             }
             case "Producto": {
-                // si eliminado, informar por consola
-                // si no existe, informar mensaje específico
-                // si eliminado, informar por consola
-                // actualiza solo precio y/o stock y/o categoria y confirma operación
-                String nuevoPrecio = "";
-                String nuevoStock = "";
-                String nuevaCategoria = "";
-
-                System.out.print("\nIngrese el ID: ");
-                String id = Main.sc.nextLine().trim();
-
-                // Valida input vacío y números negativos
-                while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
-                    System.out.print("ID inválido. Ingrese el ID: ");
-                    id = Main.sc.nextLine().trim();
-                }
-
-                Producto producto = (Producto) Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
-
-                if (producto == null) {
-                    System.out.println("\nProducto no encontrado\n");
-                } else {
-                    if (producto.isEliminado()) {
-                        System.out.println("\nProducto ya eliminado\n");
-                    } else {
-
-                        System.out.println("\nProducto encontrado: " + producto + "\n");
-
-                        // Flujo específico para PRODUCTO (cada elemento cambia y hace chequeos específicos)
-
-                        System.out.print("Ingrese el nuevo precio (Presione 'Enter' para conservar el valor actual): ");
-                        nuevoPrecio = Main.sc.nextLine().trim();
-
-                        // Si no ingresa nada o un string vacío, se asume que conserva el precio actual y avanza el flujo
-                        if (nuevoPrecio.isEmpty()) {
-                            nuevoPrecio = Double.toString(producto.getPrecio());
-                        } else {
-                            // Validamos precio y solicitamos nuevo ingreso en caso de error
-                            while (!Validador.esDigitoPositivoValido(nuevoPrecio)) {
-                                System.out.print("Precio inválido. Inténte (o Enter para conservar el valor actual): ");
-                                nuevoPrecio = Main.sc.nextLine().trim();
-                                if (nuevoPrecio.isEmpty()) {
-                                    nuevoPrecio  = Double.toString(producto.getPrecio());
-                                }
-                            }
-                        }
-
-                        double precio = Double.parseDouble(nuevoPrecio);
-
-                        // ==================
-                        System.out.print("Ingrese el nuevo Stock (Presione 'Enter' para conservar el valor actual): ");
-                        nuevoStock = Main.sc.nextLine().trim();
-
-                        // Si no ingresa nada o un string vacío, se asume que conserva el nombre actual y avanza el flujo
-                        if (nuevoStock.isEmpty()) {
-                            nuevoStock  = Integer.toString(producto.getStock());
-                        } else {
-                            while(!Validador.esNumeroEnteroValido(nuevoStock)) {
-                                System.out.print("Stock inválido. Intente nuevamente (o Enter para conservar el valor actual): ");
-                                nuevoStock = Main.sc.nextLine().trim();
-                                if (nuevoStock.isEmpty()) {
-                                    nuevoStock  = Integer.toString(producto.getStock());
-                                }
-                            }
-                        }
-
-                        int stock = Integer.parseInt(nuevoStock);
-
-                        // ==================
-                        System.out.print("Ingrese la nueva Categoría (Presione 'Enter' para conservar el valor actual): ");
-                        nuevaCategoria =  Main.sc.nextLine().trim();
-
-                        if (nuevaCategoria.isEmpty()) {
-                            nuevaCategoria = producto.getCategoria().getNombre();
-                        }
-
-                        // Verificamos que exista la categoria, si no, salimos de la edición
-                        Base categoriaBuscada = Main.findElementoByNombre(nuevaCategoria, Categoria.class.getSimpleName());
-
-                        if (categoriaBuscada == null) {
-                            System.out.println("Categoria no encontrada");
-                            break;
-                        }
-
-                        Categoria categoria =  (Categoria) categoriaBuscada;
-
-                        // Confirmación (verificar respuesta correcta con loop)
-                        // Si no hay cambios, salir
-                        if (Double.compare( precio, producto.getPrecio()) == 0 && stock == producto.getStock() && categoria.equals(producto.getCategoria())){
-                            System.out.println("\nNo se registraron cambios. Saliendo\n");
-                        } else {
-
-                            System.out.println("\nEl producto tendrá los siguientes valores:");
-                            System.out.println("Precio: $ " + precio);
-                            System.out.println("Stock: "+ stock);
-                            System.out.println("Categoria: " + categoria.getNombre());
-
-                            System.out.print("Desea realizar estos cambios? (S/N): ");
-
-                            boolean reiterarPregunta = true;
-
-                            do {
-                                String respuesta = Main.sc.nextLine().trim().toLowerCase();
-
-                                if (respuesta.equals("s")) {
-                                    producto.setPrecio(precio);
-                                    producto.setStock(stock);
-                                    producto.setCategoria(categoria);
-
-                                    System.out.println("\nCambios realizados");
-
-                                    reiterarPregunta = false;
-                                } else if (respuesta.equals("n")) {
-                                    System.out.println("\nLos cambios fueron cancelados");
-                                    reiterarPregunta = false;
-                                    break;
-                                } else {
-                                    System.out.print("Opción inválida. Desea realizar estos cambios? (S/N): ");
-                                }
-                            } while (reiterarPregunta);
-                        }
-                    }
-                }
-
+                flujoEditarProducto();
                 break;
             }
             case "Usuario": {
@@ -774,6 +652,113 @@ public class Main {
             }
         } while (reiterarPregunta);
     }        
-    
-    
+
+
+    private static void flujoEditarProducto() {
+        System.out.print("Ingrese el ID: ");
+        String id = Main.sc.nextLine().trim();
+
+        // Valida input vacío y números negativos
+        while(!(Validador.validarCadena(id) && Validador.esCodigoValido(id))) {
+            System.out.print("ID inválido. Ingrese el ID: ");
+            id = Main.sc.nextLine().trim();
+        }
+
+        Base elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
+
+        if (!(elemento instanceof Producto)) {
+            System.out.println("\nProducto no encontrado\n");
+            return;
+        }
+        Producto producto = (Producto) elemento;
+
+        if (producto.isEliminado()) {
+            System.out.println("\nProducto ya eliminado\n");
+            return;
+        }
+
+        System.out.println("\nProducto encontrado: " + producto + "\n");
+
+        // Edición de campos
+        double precio = Double.parseDouble(solicitarCampoGenerico("precio", Double.toString(producto.getPrecio()), TipoValidacion.DECIMAL_NO_NEGATIVO));
+        int stock = Integer.parseInt(solicitarCampoGenerico("stock", Integer.toString(producto.getStock()), TipoValidacion.ENTERO_NO_NEGATIVO));
+        Categoria categoria = solicitarNuevaCategoria(producto);
+
+        if (categoria == null) return; // Si la categoría no existe, corta acá
+
+        // Confirmación de cambios
+        if (Double.compare(precio, producto.getPrecio()) == 0 && stock == producto.getStock() && categoria.equals(producto.getCategoria())) {
+            System.out.println("\nNo se registraron cambios. Saliendo\n");
+            return;
+        }
+
+        mostrarResumenCambios(precio, stock, categoria);
+
+        if (confirmarCambios()) {
+            producto.setPrecio(precio);
+            producto.setStock(stock);
+            producto.setCategoria(categoria);
+            System.out.println("\nCambios realizados");
+        } else {
+            System.out.println("\nLos cambios fueron cancelados");
+        }
+    }
+
+    private static String solicitarCampoGenerico(String nombreCampo, String valorActual, TipoValidacion tipoValidacion) {
+        System.out.print("Ingrese el nuevo " + nombreCampo + " (Presione 'Enter' para conservar el valor actual): ");
+        String entrada = Main.sc.nextLine().trim();
+
+        if (entrada.isEmpty()) return valorActual; // Si da enter directo, devuelve el valor que ya tenía
+
+        // Bucle dinámico según el tipo de validación que se le pida
+        while (true) {
+            boolean esValido = false;
+
+            if (tipoValidacion == TipoValidacion.ENTERO_NO_NEGATIVO) {
+                esValido = Validador.esNumeroEnteroNoNegativoValido(entrada);
+            } else if (tipoValidacion == TipoValidacion.DECIMAL_NO_NEGATIVO) {
+                esValido = Validador.esDigitoNoNegativoValido(entrada);
+            }
+
+            if (esValido) break; // Si pasó la prueba, rompemos el bucle
+
+            // Si no es válido, vuelve a pedir
+            System.out.print(nombreCampo + " inválido. Inténtelo nuevamente (o Enter para conservar): ");
+            entrada = Main.sc.nextLine().trim();
+            if (entrada.isEmpty()) return valorActual;
+        }
+        return entrada;
+    }
+
+    private static Categoria solicitarNuevaCategoria(Producto producto) {
+        System.out.print("Ingrese la nueva Categoría (Presione 'Enter' para conservar el valor actual): ");
+        String nuevaCategoria = Main.sc.nextLine().trim();
+
+        if (nuevaCategoria.isEmpty()) return producto.getCategoria();
+
+        Base categoriaBuscada = Main.findElementoByNombre(nuevaCategoria, Categoria.class.getSimpleName());
+        if (categoriaBuscada == null) {
+            System.out.println("\nCategoría no encontrada.\n");
+            return null;
+        }
+        return (Categoria) categoriaBuscada;
+    }
+
+    private static void mostrarResumenCambios(double precio, int stock, Categoria categoria) {
+        System.out.println("\nEl producto tendrá los siguientes valores:");
+        System.out.println("Precio: $ " + precio);
+        System.out.println("Stock: " + stock);
+        System.out.println("Categoría: " + categoria.getNombre());
+    }
+
+    private static boolean confirmarCambios() {
+        System.out.print("\n¿Desea realizar estos cambios? (S/N): ");
+
+        while(true) {
+            String respuesta =  Main.sc.nextLine().trim().toLowerCase();
+            if (respuesta.equals("s")) return true;
+            if (respuesta.equals("n")) return false;
+            System.out.print("Opción inválida. ¿Desea realizar estos cambios? (S/N): ");
+        }
+    }
 }
