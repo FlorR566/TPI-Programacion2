@@ -481,6 +481,44 @@ public class Main {
                 // si eliminado, informar por consola
                 String id = pedirIdValido(); // Valida input vacío y números negativos
 
+                Base elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
+
+                if (!(elemento instanceof Producto)) {
+                    System.out.println("\nProducto no encontrado\n");
+                    return;
+                }
+
+                Producto producto = (Producto) elemento;
+
+                if (producto.isEliminado()) {
+                    System.out.println("\nProducto ya eliminado\n");
+                    return;
+                }
+
+                System.out.println("\nProducto encontrado: " + producto + "\n");
+                System.out.print("Desea continuar con la eliminación? (S/N): ");
+
+                boolean reiterarPregunta = true;
+
+                do {
+                    String respuesta = Main.sc.nextLine().trim();
+
+                    if (respuesta.trim().toLowerCase().equals("s")) {
+                        producto.setEliminado(true);
+
+                        System.out.println("\nProducto eliminado\n");
+
+                        reiterarPregunta = false;
+                    } else if (respuesta.trim().toLowerCase().equals("n")) {
+                        System.out.println("\nEliminación cancelada\n");
+                        reiterarPregunta = false;
+                        break;
+                    } else {
+                        System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");
+                    }
+                } while (reiterarPregunta);
+
+
                 break;
             }
             case "Usuario": {
