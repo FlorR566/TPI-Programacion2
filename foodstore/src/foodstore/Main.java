@@ -264,8 +264,8 @@ public class Main {
                 System.out.print("Ingrese el precio: ");
                 String precioIngresado = Main.sc.nextLine().trim();
 
-                while (!Validador.esDigitoPositivoValido(precioIngresado)) {
-                    System.out.print("\nPrecio inválido. Inténtelo nuevamente: ");
+                while (!Validador.esDigitoNoNegativoValido(precioIngresado)) {
+                    System.out.print("Precio inválido. Inténtelo nuevamente: ");
                     precioIngresado = Main.sc.nextLine().trim();
                 }
                 double precio = Double.parseDouble(precioIngresado);
@@ -283,7 +283,7 @@ public class Main {
                 System.out.print("Ingrese el stock: ");
                 String stockIngresado = Main.sc.nextLine().trim();
 
-                while (!Validador.esNumeroEnteroValido(stockIngresado)) {
+                while (!Validador.esNumeroEnteroNoNegativoValido(stockIngresado)) {
                     System.out.print("Stock inválido. Inténtelo nuevamente: ");
                     stockIngresado = Main.sc.nextLine().trim();
                 }
@@ -655,6 +655,10 @@ public class Main {
 
 
     private static void flujoEditarProducto() {
+        // si eliminado, informar por consola
+        // si no existe, informar mensaje específico
+        // si eliminado, informar por consola
+        // actualiza solo precio y/o stock y/o categoria y confirma operación
         System.out.print("Ingrese el ID: ");
         String id = Main.sc.nextLine().trim();
 
