@@ -316,11 +316,11 @@ public class Main {
 
                 break;
             }
-            case "Usuarios": {
+            case "Usuario": {
                 
                 break;
             }
-            case "Pedidos": {
+            case "Pedido": {
                 
                 break;
             }
@@ -726,7 +726,9 @@ public class Main {
         if (confirmarCambios()) {
             producto.setPrecio(precio);
             producto.setStock(stock);
-            producto.setCategoria(categoria);
+            if (!categoria.equals(producto.getCategoria())) {
+                producto.setCategoria(categoria);
+            }
             System.out.println("\nCambios realizados");
         } else {
             System.out.println("\nLos cambios fueron cancelados");
