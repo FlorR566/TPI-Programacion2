@@ -140,8 +140,8 @@ public class Usuario extends Base {
             listaPedidos = "Sin pedidos";
         }                
         
-        String cadena = String.format(""
-                + "===========================================================\n"
+        String cadena = String.format(
+                "=========================================================\n"
                 + "Usuario #%d: %s %s | Mail: %s | Rol: %s \n"
                 + "===========================================================\n"
                 + " %s \n" // Pedidos (con detalle y total del pedido

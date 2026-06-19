@@ -35,4 +35,29 @@ public class Validador {
         return cadena.matches("^\\d+$") && Integer.parseInt(cadena) >= 0;
     }
 
+    // Valida que el mail contenga '@' y que esté en medio
+    public static boolean validarEmail(String email) {
+        if (email == null || email.trim().isEmpty()) return false;
+
+        int posicionArroba = email.indexOf("@");
+        if (posicionArroba <= 0 ||  posicionArroba == email.length() - 1) return false;
+
+        return true;
+    }
+
+    public static boolean validarCelular(String celular) {
+        if (celular == null || celular.trim().isEmpty()) return false;
+
+        String limpio= celular.replace(" ", "").replace("-", "").replace("+","");
+
+        // Para debug (luego eliminar)
+        if (limpio.length() < 4) return false;
+        // if ( limpio.length() < 10 || limpio.length() > 13) return false;
+
+        for (int i=0; i < limpio.length(); i++ ) { // chequea que cada caracter solo sea numérico
+            if (!Character.isDigit(limpio.charAt(i))) return false;
+        }
+
+        return true;
+    }
 }

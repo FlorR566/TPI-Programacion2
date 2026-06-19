@@ -6,6 +6,7 @@ import foodstore.entities.Categoria;
 import foodstore.entities.Pedido;
 import foodstore.entities.Producto;
 import foodstore.entities.Usuario;
+import foodstore.enums.Rol;
 import foodstore.enums.TipoValidacion;
 import foodstore.utils.Validador;
 import java.util.ArrayList;
@@ -205,14 +206,7 @@ public class Main {
                 
                 // Tomar argumentos
                 System.out.println("\n========== CREAR CATEGORIA ==========\n");
-                System.out.print("Ingrese el nombre: ");
-                
-                nombre = Main.sc.nextLine().trim();                
-                        
-                while (!Validador.validarCadena(nombre)) {
-                    System.out.print("Nombre inválido. Inténtelo nuevamente: ");
-                    nombre = Main.sc.nextLine().trim();
-                }
+                nombre = pedirNombreValido("Nombre");
                 
                 // Verificar que no exista ya la misma categoría               
                 Base categoriaExistente = Main.findElementoByNombre(nombre, Categoria.class.getSimpleName());
@@ -244,13 +238,7 @@ public class Main {
             case "Producto": {
                 // Tomar argumentos
                 System.out.println("\n========== CREAR PRODUCTO ==========\n");
-                System.out.print("Ingrese el nombre: ");
-                String nombre = Main.sc.nextLine().trim();
-
-                while (!Validador.validarCadena(nombre)) {
-                    System.out.print("Nombre inválido. Inténtelo nuevamente: ");
-                    nombre = Main.sc.nextLine().trim();
-                }
+                String nombre = pedirNombreValido("Nombre");
 
                 // Verificar que no exista ya el mismo producto
                 Base productoExistente = Main.findElementoByNombre(nombre, Producto.class.getSimpleName());
@@ -317,7 +305,58 @@ public class Main {
                 break;
             }
             case "Usuario": {
-                
+                System.out.println("\n========== CREAR USUARIO ==========\n");
+                // Pedimos y validamos nombre + apellido
+                String nombre = pedirNombreValido("Nombre");
+                String apellido = pedirNombreValido("Apellido");
+
+                // Pedimos mail y validamos
+                System.out.print("Ingrese el mail: ");
+                String mail = Main.sc.nextLine().trim();
+
+                while (!Validador.validarEmail(mail)) {
+                    System.out.print("Mail inválido. Inténtelo nuevamente: ");
+                    mail = Main.sc.nextLine().trim();
+                }
+
+                // Validamos que no exista el mismo mail
+                while (!Validador.validarEmail(mail) || existeMail(mail, usuarios)) {
+                    if (!Validador.validarEmail(mail)) {
+                        System.out.print("Mail inválido. Inténtelo nuevamente: ");
+                    } else {
+                        System.out.print("Mail ya registrado. Ingrese otro: ");
+                    }
+                    mail = Main.sc.nextLine().trim();
+                }
+
+                // Pedimos celular y validamos
+                System.out.print("Ingrese el celular: ");
+                String celular = Main.sc.nextLine().trim();
+
+                while (!Validador.validarCelular(celular)) {
+                    System.out.print("Celular inválido. Inténtelo nuevamente: ");
+                    celular = Main.sc.nextLine().trim();
+                }
+
+                // Pedimos y validamos la contraseña
+                System.out.print("Ingrese la contraseña (Elegir 4 números o caracteres): ");
+                String contrasena = Main.sc.nextLine().trim();
+
+                while (contrasena == null || contrasena.trim().length() < 4) {
+                    System.out.print("Contraseña inválida (mínimo 4 caracteres). Inténtelo nuevamente: ");
+                    contrasena = Main.sc.nextLine();
+                }
+
+                // Pedimos rol y validamos
+                Rol rol = solicitarRol();
+
+                Usuario nuevoUsuario = new Usuario(nombre, apellido, mail, celular, contrasena, rol );
+
+                // Agregar a la lista correspondiente
+                Main.usuarios.add(nuevoUsuario);
+
+                System.out.println("\nNuevo usuario agregado con ID " + nuevoUsuario.getId());
+
                 break;
             }
             case "Pedido": {
@@ -775,6 +814,20 @@ public class Main {
         return (Categoria) categoriaBuscada;
     }
 
+    private static Rol solicitarRol() {
+        System.out.print("Seleccione un rol (1. ADMIN/ 2. USUARIO): ");
+
+        while (true) {
+            String entrada = Main.sc.nextLine().trim();
+            switch (entrada) {
+                case "1": return Rol.ADMIN;
+                case "2": return Rol.USUARIO;
+                default:
+                    System.out.print("Opción inválida. Ingrese 1 o 2: ");
+            }
+        }
+    }
+
     private static void mostrarResumenCambios(double precio, int stock, Categoria categoria) {
         System.out.println("\nEl producto tendrá los siguientes valores:");
         System.out.println("Precio: $ " + precio);
@@ -804,4 +857,25 @@ public class Main {
         }
         return id;
     }
+
+    private static String pedirNombreValido(String tipoDato) {
+        System.out.print("Ingrese el " + tipoDato.toLowerCase() + ": ");
+        String lectura = Main.sc.nextLine().trim();
+
+        while (!Validador.validarCadena(lectura)) {
+            System.out.print(tipoDato + " inválido. Inténtelo nuevamente: ");
+            lectura = Main.sc.nextLine().trim();
+        }
+        return lectura;
+    }
+
+    public static boolean existeMail (String mail, List<Usuario> usuarios) {
+        for (Usuario usuario : usuarios) {
+            if  (usuario.getMail().equalsIgnoreCase(mail)) {
+                return true; // Encontrado
+            }
+        }
+        return false; // no entontrado
+    }
+
 }
