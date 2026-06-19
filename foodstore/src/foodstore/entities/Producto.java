@@ -40,7 +40,7 @@ public class Producto extends Base {
     }
 
     public void setPrecio(double precio) {
-         if (precio > 0) {
+         if (precio >= 0) {
             this.precio = precio;
         } else {
             throw new IllegalArgumentException("Precio producto inválido");
