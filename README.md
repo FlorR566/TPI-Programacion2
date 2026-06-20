@@ -14,10 +14,10 @@ Toda la información se almacena en memoria usando Colecciones durante la ejecuc
 
 ## Estudiantes
 
-**Nombre y Apellido** – Legajo XXXXX  
-**Nombre y Apellido** – Legajo XXXXX  
-**Nombre y Apellido** – Legajo XXXXX  
-**Nombre y Apellido** – Legajo XXXXX
+**Aldana, Lara Agustina** – Legajo XXXXX  
+**Miglioranza, Manuel Agustín** – Legajo XXXXX  
+**Pavic, Lucelia Ines** – Legajo 35935  
+**Rodriguez, Florencia Mabel** – Legajo XXXXX
 
 ---
 
