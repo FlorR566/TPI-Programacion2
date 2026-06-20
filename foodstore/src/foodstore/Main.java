@@ -869,24 +869,24 @@ public class Main {
             if (cargarDatosPrueba.trim().toLowerCase().equals("s")) {
                 System.out.println("Cargando datos...");
                 
-                // TODO: inicializar objetos una vez estén hechas las clases
                 
-                Categoria c1 = new Categoria("Categoria test", "descripcion categoria test");                
-                Main.categorias.add(c1);
-                
-                
-                Usuario user = new Usuario("user","prueba","test@mail.com","11223344","password123",Rol.ADMIN);
-                Main.usuarios.add(user);    
-//                user.setEliminado(true);
-                Producto pp1 = new Producto("producto1", 10, "desc", 1, "imagen.png", c1);
-                Producto pp2 = new Producto("producto2", 100, "desc", 2, "imagen.png", c1);
-                Producto pp3 = new Producto("producto3", 1, "desc", 0, "imagen.png", c1);
-                c1.agregarProducto(pp1);
-                c1.agregarProducto(pp2);
-                c1.agregarProducto(pp3);
-                Main.productos.add(pp1);
-                Main.productos.add(pp2);
-                Main.productos.add(pp3);
+//                
+//                Categoria c1 = new Categoria("Categoria test", "descripcion categoria test");                
+//                Main.categorias.add(c1);
+//                
+//                
+//                Usuario user = new Usuario("user","prueba","test@mail.com","11223344","password123",Rol.ADMIN);
+//                Main.usuarios.add(user);    
+////                user.setEliminado(true);
+//                Producto pp1 = new Producto("producto1", 10, "desc", 1, "imagen.png", c1);
+//                Producto pp2 = new Producto("producto2", 100, "desc", 2, "imagen.png", c1);
+//                Producto pp3 = new Producto("producto3", 1, "desc", 0, "imagen.png", c1);
+//                c1.agregarProducto(pp1);
+//                c1.agregarProducto(pp2);
+//                c1.agregarProducto(pp3);
+//                Main.productos.add(pp1);
+//                Main.productos.add(pp2);
+//                Main.productos.add(pp3);
                 
                 System.out.println("Datos cargados OK");
 
