@@ -6,6 +6,8 @@ import foodstore.entities.Categoria;
 import foodstore.entities.Pedido;
 import foodstore.entities.Producto;
 import foodstore.entities.Usuario;
+import foodstore.enums.Estado;
+import foodstore.enums.FormaPago;
 import foodstore.enums.TipoValidacion;
 import foodstore.utils.Validador;
 import java.util.ArrayList;
@@ -321,6 +323,58 @@ public class Main {
                 break;
             }
             case "Pedido": {
+                String formaPago;
+                String idUsuario;
+                String estado;
+                
+                // Tomar argumentos
+                System.out.println("\n========== CREAR PEDIDO ==========\n");
+                
+                System.out.print("Ingrese forma de pago (TARJETA, TRANSFERENCIA, EFECTIVO): ");
+                formaPago = Main.sc.nextLine().trim();
+                        
+                while (!Validador.esFormaDePagoValida(formaPago)) {
+                    System.out.print("Forma de pago inválida. Ingrese TARJETA, TRANSFERENCIA o EFECTIVO: ");
+                    formaPago = Main.sc.nextLine().trim();
+                }
+                
+                System.out.print("Ingrese el estado (PENDIENTE, CONFIRMADO, TERMINADO, CANCELADO): ");            
+                estado = Main.sc.nextLine().trim();
+                        
+                while (!Validador.esEstadoValido(estado)) {
+                    System.out.print("Estado inválido. Ingrese PENDIENTE, CONFIRMADO, TERMINADO o CANCELADO: ");
+                    estado = Main.sc.nextLine().trim();
+                }
+                
+                System.out.println("El pedido debe tener un usuario.");            
+                
+                idUsuario = Main.pedirIdValido();
+                
+                // TODO: depende de Usuario
+                Base elemento = Main.findElementoById(Integer.parseInt(idUsuario), Usuario.class.getSimpleName());
+
+                if (!(elemento instanceof Usuario)) {
+                    System.out.println("\nUsuario no encontrado\n");
+                    return;
+                }
+                Usuario usuario = (Usuario) elemento;
+
+                if (usuario.isEliminado()) {
+                    System.out.println("\nProducto ya eliminado\n");
+                    return;
+                }
+
+                System.out.println("\nUsuario encontrado: " + usuario + "\n");
+
+               
+                // Convertir los strings al enum correspondiente
+                Estado estadoNuevoPedido = Estado.valueOf(estado.toUpperCase());
+                FormaPago formaPagoNuevoPedido = FormaPago.valueOf(formaPago.toUpperCase());
+                
+                Pedido nuevoPedido = new Pedido(estadoNuevoPedido, formaPagoNuevoPedido, usuario);           
+                // Agregar a lista correspondiente                
+                Main.pedidos.add(nuevoPedido);
+                System.out.println("\nNuevo pedido agregado con ID " + nuevoPedido.getId());
                 
                 break;
             }
