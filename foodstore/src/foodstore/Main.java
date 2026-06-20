@@ -12,9 +12,6 @@ import foodstore.enums.FormaPago;
 import foodstore.enums.Rol;
 import foodstore.enums.TipoValidacion;
 import foodstore.utils.Validador;
-
-import javax.xml.transform.Source;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
