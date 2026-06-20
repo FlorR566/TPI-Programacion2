@@ -14,10 +14,10 @@ Toda la información se almacena en memoria usando Colecciones durante la ejecuc
 
 ## Estudiantes
 
-**Aldana, Lara Agustina** – Legajo XXXXX  
-**Miglioranza, Manuel Agustín** – Legajo XXXXX  
-**Pavic, Lucelia Ines** – Legajo 35935  
-**Rodriguez, Florencia Mabel** – Legajo XXXXX
+Aldana, Lara Agustina - Comisión 6
+Miglioranza, Manuel Agustín - Comisión 8
+Pavic, Lucelia Ines - Comisión 2
+Rodriguez, Florencia Mabel - Comisión 1
 
 ---
 
@@ -25,18 +25,14 @@ Toda la información se almacena en memoria usando Colecciones durante la ejecuc
 
 [Enlace al video](#) _( )_
 
-## Informe PDF
-
-[Enlace al informe PDF](#) _( )_
-
 ---
 
 ## Tecnologías
 
 - Java 21
-- Colecciones (`ArrayList`)
-- POO: herencia, interfaces, polimorfismo, encapsulamiento
-- Manejo de excepciones propias
+- NetBeans
+- Git
+- GitHub
 
 ---
 
@@ -46,12 +42,10 @@ Toda la información se almacena en memoria usando Colecciones durante la ejecuc
 src/
 └── integrado/prog2/
     ├── Main.java
-    ├── config/
     ├── entities/
     ├── enums/
-    ├── exception/
-    ├── service/
-    └── ui/
+    ├── interfaces/
+    └── utils/
 ```
 
 ---

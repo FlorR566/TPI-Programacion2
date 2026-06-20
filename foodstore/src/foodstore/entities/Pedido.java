@@ -158,12 +158,12 @@ public class Pedido extends Base implements Calculable {
             listaDetalles = "Este pedido no tiene ningún detalle";
         }
          
-        String cadena = String.format("Pedido #%d: | Fecha: %s | Estado: %s | FormaPago: %s\n"
+        String cadena = String.format("Pedido #%d: | Fecha: %s | Estado: %s | FormaPago: %s | Usuario: #%d\n"
                 + "-----------------------------------------------------------------------\n"
                 + "%s \n"
                 + "TOTAL DEL PEDIDO: $ %.2f\n"
                 + "-----------------------------------------------------------------------\n",                
-                this.getId(), this.getFecha(), this.getEstado(), this.getFormaPago(), listaDetalles, this.getTotal());
+                this.getId(), this.getFecha(), this.getEstado(), this.getFormaPago(), this.getUsuario().getId(), listaDetalles, this.getTotal());
 
         return cadena;
     }

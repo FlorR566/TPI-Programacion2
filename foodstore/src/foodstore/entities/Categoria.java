@@ -26,6 +26,7 @@ public class Categoria extends Base {
                 producto.setCategoria(this);
             }
         } else {
+            
             System.out.println("Producto inválido");            
         }
     }
