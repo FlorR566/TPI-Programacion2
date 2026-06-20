@@ -365,14 +365,12 @@ public class Main {
                 }
 
                 System.out.println("\nUsuario encontrado: " + usuario + "\n");
-
-               
                 // Convertir los strings al enum correspondiente
                 Estado estadoNuevoPedido = Estado.valueOf(estado.toUpperCase());
                 FormaPago formaPagoNuevoPedido = FormaPago.valueOf(formaPago.toUpperCase());
                 
-                Pedido nuevoPedido = new Pedido(estadoNuevoPedido, formaPagoNuevoPedido, usuario);           
-                // Agregar a lista correspondiente                
+                Pedido nuevoPedido = new Pedido(estadoNuevoPedido, formaPagoNuevoPedido, usuario);        
+                // Agregar a lista correspondiente
                 Main.pedidos.add(nuevoPedido);
                 System.out.println("\nNuevo pedido agregado con ID " + nuevoPedido.getId());
                 
