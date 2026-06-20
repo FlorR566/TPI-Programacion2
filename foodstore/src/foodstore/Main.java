@@ -12,6 +12,9 @@ import foodstore.enums.FormaPago;
 import foodstore.enums.Rol;
 import foodstore.enums.TipoValidacion;
 import foodstore.utils.Validador;
+
+import javax.xml.transform.Source;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -614,7 +617,88 @@ public class Main {
                 break;
             }
             case "Usuario": {
-                
+                System.out.println("\n========== EDITAR USUARIO ==========\n");
+                // si eliminado, informar por consola
+                // si no existe, informar mensaje específico
+                // si eliminado, informar por consola
+                // actualiza nombre y/o mail y/o celular
+                String id = pedirIdValido();
+
+                Usuario usuario = (Usuario) Main.findElementoById(Integer.parseInt(id), Usuario.class.getSimpleName());
+                if (usuario == null) {
+                    System.out.println("\nUsuario no encontrado\n");
+                    break;
+                } else if (usuario.isEliminado()) {
+                    System.out.println("\nUsuario ya eliminado\n");
+                    break;
+                }
+
+                System.out.println("\nUsuario encontrado ID: " + usuario.getId());
+                System.out.println("Datos actuales: " + usuario.getNombre() + " " + usuario.getApellido() + " (" + usuario.getMail() + ")");
+                System.out.println("---------------------------------------------------\n");
+
+                // Edición de campos
+                String nombre = pedirNombreValido("Nombre");
+                String apellido = pedirNombreValido("Apellido");
+
+                System.out.print("Ingrese el Mail: ");
+                String mail =  Main.sc.nextLine().trim();
+                // Validamos unicidad y formato del mail
+                while (!Validador.validarEmail(mail) || (!mail.equalsIgnoreCase(usuario.getMail()) && existeMail(mail, usuarios))) {
+                    if (!Validador.validarEmail(mail)) {
+                        System.out.print("Formato de mail inválido. Inténtelo nuevamente: ");
+                    } else {
+                        System.out.print("El mail ya está registrado por otro usuario. Ingrese otro: ");
+                    }
+                    mail = Main.sc.nextLine().trim();
+                }
+
+                System.out.print("Ingrese el Celular: ");
+                String celular =  Main.sc.nextLine().trim();
+                while (!Validador.validarCelular(celular)) {
+                    System.out.print("Celular inválido. Inténtelo nuevamente: ");
+                    celular = Main.sc.nextLine().trim();
+                }
+
+                System.out.print("Ingrese la Contraseña: ");
+                String contrasena =  Main.sc.nextLine().trim();
+                while (contrasena.length() < 4) {
+                    System.out.print("Contraseña inválida (mínimo 4 caracteres). Inténtelo nuevamente: ");
+                    contrasena = Main.sc.nextLine().trim();
+                }
+
+                // Confirmación de cambios
+                if (nombre.equalsIgnoreCase(usuario.getNombre()) &&
+                        apellido.equalsIgnoreCase(usuario.getApellido()) &&
+                        mail.equalsIgnoreCase(usuario.getMail()) &&
+                        celular.equalsIgnoreCase(usuario.getCelular()) &&
+                        contrasena.equals(usuario.getContrasena())) {
+
+                    System.out.println("\nNo se registraron cambios. Saliendo\n");
+                    break;
+                }
+
+                // Mostrar resumen
+                System.out.println("\nResumen de cambios a realizar:");
+                System.out.println("Nombre completo: " + nombre + " " + apellido);
+                System.out.println("Mail: " + mail);
+                System.out.println("Celular: " + celular);
+
+                System.out.print("\n¿Desea realizar estos cambios? (S/N): ");
+                String confirmacion = Main.sc.nextLine().trim();
+
+                if (confirmacion.equalsIgnoreCase("S")) {
+                    usuario.setNombre(nombre);
+                    usuario.setApellido(apellido);
+                    usuario.setMail(mail);
+                    usuario.setCelular(celular);
+                    usuario.setContrasena(contrasena);
+
+                    System.out.println("\nUsuario actualizado con éxito");
+                } else {
+                    System.out.println("\nLos cambios fueron cancelados");
+                }
+
                 break;
             }
             case "Pedido": {
@@ -622,10 +706,6 @@ public class Main {
                 // si eliminado, informar por consola
                 // si no existe, informar mensaje específico
                 // si eliminado, informar por consola
-                // actualiza sólo nombre y/o descripcion y confirma operación
-                String nombre = "";
-                String descripcion = "";
-
                 String id = pedirIdValido(); // Valida input vacío y números negativos
                 
                 Pedido pedido = (Pedido) Main.findElementoById(Integer.parseInt(id), Pedido.class.getSimpleName());
@@ -662,7 +742,7 @@ public class Main {
                             estado = pedido.getEstado().toString();
                         }
 
-                        // se cheqiea después del if ya que siempre va a ser un estado válido si no se ingresa ningún valor
+                        // se cheqea después del if ya que siempre va a ser un estado válido si no se ingresa ningún valor
                         while (!Validador.esEstadoValido(estado)) {
                             System.out.print("Estado inválido. Ingrese PENDIENTE, CONFIRMADO, TERMINADO o CANCELADO: ");
                             estado = Main.sc.nextLine().trim();
