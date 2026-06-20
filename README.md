@@ -14,7 +14,7 @@ Toda la información se almacena en memoria usando Colecciones durante la ejecuc
 
 ## Estudiantes
 
-**Aldana, Lara Agustina** – Legajo XXXXX  
+**Aldana, Lara Agustina** – Legajo 7711
 **Miglioranza, Manuel Agustín** – Legajo XXXXX  
 **Pavic, Lucelia Ines** – Legajo 35935  
 **Rodriguez, Florencia Mabel** – Legajo XXXXX
