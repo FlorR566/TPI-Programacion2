@@ -678,80 +678,56 @@ public class Main {
     
     // La implementación toma el ID para buscar y sólo setea eliminado = true;
     private static void eliminar(String objeto) {
+        String id = pedirIdValido(); // Valida input vacío y números negativos 
+        Base elemento;
         switch(objeto) {
             case "Categoria": {
                 System.out.println("\n========== ELIMINAR CATEGORIA ==========\n");
-                // si eliminado, informar por consola
-
-                String id = pedirIdValido(); // Valida input vacío y números negativos
-                
-                Base categoria = Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
-
-                if (categoria == null) {
-                    System.out.println("\nCategoría no encontrada\n");
-                } else {
-                    if (categoria.isEliminado()) {
-                        System.out.println("\nCategoría ya eliminada\n");
-                    } else {
-                        
-                        System.out.println("\nCategoría encontrada: " + categoria + "\n");
-                        System.out.print("Desea continuar con la eliminación? (S/N): ");
-
-                        boolean reiterarPregunta = true;
-
-                        do {            
-                            String respuesta = Main.sc.nextLine().trim();
-
-                            if (respuesta.trim().toLowerCase().equals("s")) {
-                                categoria.setEliminado(true);
-                                
-                                System.out.println("\nCategoría eliminada\n");     
-
-                                reiterarPregunta = false;
-                            } else if (respuesta.trim().toLowerCase().equals("n")) {
-                                System.out.println("\nEliminación cancelada\n");
-                                reiterarPregunta = false;
-                                break;
-                            } else {
-                                System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");      
-                            }
-                        } while (reiterarPregunta);                                                                
-                    }
-                }
+                elemento = Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
 
                 break;
             }
             case "Producto": {
-                System.out.println("\n========== ELIMINAR PRODUCTO ==========\n");
-                // si eliminado, informar por consola
-                String id = pedirIdValido(); // Valida input vacío y números negativos
+                System.out.println("\n========== ELIMINAR PRODUCTO ==========\n");               
+                elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
 
-                Base elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
+                break;
+            }
+            case "Usuario": {
+                System.out.println("\n========== ELIMINAR USUARIO ==========\n");               
+                elemento = Main.findElementoById(Integer.parseInt(id), Usuario.class.getSimpleName());
 
-                if (!(elemento instanceof Producto)) {
-                    System.out.println("\nProducto no encontrado\n");
-                    return;
-                }
+                break;
+            }
+            case "Pedido": {
+                System.out.println("\n========== ELIMINAR PEDIDO ==========\n");
+                elemento = Main.findElementoById(Integer.parseInt(id), Pedido.class.getSimpleName());             
+            }
+            default: {
+                throw new RuntimeException("Error: Imposible eliminar objeto");
+            }
+            
+        }         
 
-                Producto producto = (Producto) elemento;
+        if (elemento == null) {
+            System.out.println("\nNo encontrado\n");
+        } else {
+            if (elemento.isEliminado()) {
+                System.out.println("\nYa eliminado\n");
+            } else {
 
-                if (producto.isEliminado()) {
-                    System.out.println("\nProducto ya eliminado\n");
-                    return;
-                }
-
-                System.out.println("\nProducto encontrado: " + producto + "\n");
+                System.out.println("\nEncontrado: " + elemento + "\n");
                 System.out.print("Desea continuar con la eliminación? (S/N): ");
 
                 boolean reiterarPregunta = true;
 
-                do {
+                do {            
                     String respuesta = Main.sc.nextLine().trim();
 
                     if (respuesta.trim().toLowerCase().equals("s")) {
-                        producto.setEliminado(true);
-                        
-                        System.out.println("\nProducto eliminado\n");
+                        elemento.setEliminado(true);
+
+                        System.out.println("\nEliminado\n");     
 
                         reiterarPregunta = false;
                     } else if (respuesta.trim().toLowerCase().equals("n")) {
@@ -759,63 +735,13 @@ public class Main {
                         reiterarPregunta = false;
                         break;
                     } else {
-                        System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");
+                        System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");      
                     }
-                } while (reiterarPregunta);
-
-
-                break;
-            }
-            case "Usuario": {
-                
-                break;
-            }
-            case "Pedido": {
-                System.out.println("\n========== ELIMINAR PEDIDO ==========\n");
-                // si eliminado, informar por consola
-                String id = pedirIdValido(); // Valida input vacío y números negativos
-                
-                Base pedido = Main.findElementoById(Integer.parseInt(id), Pedido.class.getSimpleName());
-
-                if (pedido == null) {
-                    System.out.println("\nPedido no encontrado\n");
-                } else {
-                    if (pedido.isEliminado()) {
-                        System.out.println("\nPedido ya eliminado\n");
-                    } else {
-                        
-                        System.out.println("\nPedido encontrado: " + pedido + "\n");
-                        System.out.print("Desea continuar con la eliminación? (S/N): ");
-
-                        boolean reiterarPregunta = true;
-
-                        do {            
-                            String respuesta = Main.sc.nextLine().trim();
-
-                            if (respuesta.trim().toLowerCase().equals("s")) {
-                                pedido.setEliminado(true);
-                        
-                                System.out.println("\nPedido eliminado\n");     
-
-                                reiterarPregunta = false;
-                            } else if (respuesta.trim().toLowerCase().equals("n")) {
-                                System.out.println("\nEliminación cancelada\n");
-                                reiterarPregunta = false;
-                                break;
-                            } else {
-                                System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");      
-                            }
-                        } while (reiterarPregunta);                                                                
-                    }
-                }
-                break;
-            }
-            default: {
-                throw new RuntimeException("Error: Imposible eliminar objeto");
+                } while (reiterarPregunta);                                                                
             }
         }
     }
-    
+      
     // Validaciones / Métodos auxiliares
     
     private static boolean cumpleRangoValido(int opcion, int min, int max) {
