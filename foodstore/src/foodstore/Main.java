@@ -3,6 +3,7 @@ package foodstore;
 
 import foodstore.entities.Base;
 import foodstore.entities.Categoria;
+import foodstore.entities.DetallePedido;
 import foodstore.entities.Pedido;
 import foodstore.entities.Producto;
 import foodstore.entities.Usuario;
@@ -118,7 +119,7 @@ public class Main {
                            Main.procesarOpcionCRUD(opcionSubmenu, Pedido.class.getSimpleName());
                            break;
 
-                       }   
+                       }                    
                        default:
                             System.out.println("\nOpción inválida\n");
                             break;
@@ -159,7 +160,7 @@ public class Main {
                         break;
                     }                 
                     default:
-                        System.out.println("\nOpción inválida\n");
+//                        System.out.println("\nOpción inválida\n");
                         break;
                 }                
             } catch (IllegalArgumentException e) {
@@ -245,6 +246,11 @@ public class Main {
                 break;
             }
             case "Producto": {
+                // Check lógico necesario por la dependencia entre entidades
+                if (Main.categorias.size() == 0) {
+                    System.out.println("\nNo existen categorías creadas. Debe crear previamente al menos una categoría para su producto");
+                    break;
+                }
                 // Tomar argumentos
                 System.out.println("\n========== CREAR PRODUCTO ==========\n");
                 System.out.print("Ingrese el nombre: ");
@@ -324,6 +330,13 @@ public class Main {
                 break;
             }
             case "Pedido": {
+                
+                // Check lógico necesario por la dependencia entre entidades (para evitar bucles infinitos)
+                if (Main.productos.size() == 0) {
+                    System.out.println("\nNo existen productos en la tienda. Debe crear al menos un producto para generar un pedido");
+                    break;
+                }
+                
                 String formaPago;
                 String idUsuario;
                 String estado;
@@ -347,7 +360,7 @@ public class Main {
                     estado = Main.sc.nextLine().trim();
                 }
                 
-                System.out.println("El pedido debe tener un usuario.");            
+                System.out.println("\nEl pedido debe tener un usuario.");            
                 
                 idUsuario = Main.pedirIdValido();
                 
@@ -365,16 +378,99 @@ public class Main {
                     return;
                 }
 
-                System.out.println("\nUsuario encontrado: " + usuario + "\n");
+                System.out.println("\nUsuario encontrado: ID " + usuario.getId() + "\n");
+                
+                
                 // Convertir los strings al enum correspondiente
                 Estado estadoNuevoPedido = Estado.valueOf(estado.toUpperCase());
                 FormaPago formaPagoNuevoPedido = FormaPago.valueOf(formaPago.toUpperCase());
+                // El pedido se crea pero aún no se agrega en memoria porque no tiene detalles asociados
+                // La operación puede ser cancelada todavía
                 
-                Pedido nuevoPedido = new Pedido(estadoNuevoPedido, formaPagoNuevoPedido, usuario);        
-                // Agregar a lista correspondiente
-                Main.pedidos.add(nuevoPedido);
-                System.out.println("\nNuevo pedido agregado con ID " + nuevoPedido.getId());
+                Pedido nuevoPedido = new Pedido(estadoNuevoPedido, formaPagoNuevoPedido, usuario); 
                 
+                // Iniciar bucle para agregar detalles
+                System.out.println("=== Detalles del pedido ===");              
+                boolean reiterarPregunta = true;
+                
+                System.out.print("Su pedido no contiene detalles. Desea agregar uno? (S/N): ");
+
+                do {
+                    String respuesta = Main.sc.nextLine().trim();
+
+                    if (respuesta.trim().toLowerCase().equals("s")) {
+                        
+                        // es necesario dar la opción de salir con 0 porque puede quedarse en un bucle infinito
+                        // si no existen productos 
+                        System.out.print("\nIngrese el nombre de un producto para el detalle (0 para salir): ");
+
+                        String nombreProducto = Main.sc.nextLine().trim();                
+
+                        while (!Validador.validarCadena(nombreProducto) && !nombreProducto.equals("0")) {
+                            System.out.print("\nNombre inválido. Inténtelo nuevamente (0 para salir):  ");
+                            nombreProducto = Main.sc.nextLine().trim();
+                        }
+
+                        if (nombreProducto.equals("0")) {
+                            System.out.println("\nOperación cancelada");
+                            return; // tiene que salir obligatoriamente porque no debe agregar el pedido (se hace después de este while)
+                        }
+
+                        // Verificar que exista el producto             
+                        Base productoExistente = Main.findElementoByNombre(nombreProducto, Producto.class.getSimpleName());
+
+                        // Verificar 3 casos clave: que el producto no sea null, si existe que esté disponible o tenga stock, que no haya sido agregado previamente al pedido
+                        if (productoExistente == null) {
+                            System.out.println("\nProducto no encontrado");
+                            // deja seguir el flujo (vuelve arriba)
+                            continue;
+                        } else if (productoExistente != null && (!((Producto) productoExistente).isDisponible() || ((Producto) productoExistente).getStock() == 0)) {
+                            System.out.println("\nProducto no disponible o sin stock");
+                            // deja seguir el flujo (vuelve arriba)
+                            continue;
+                        } else if (nuevoPedido.findDetallePedidoByProducto((Producto) productoExistente) != null) {
+                            System.out.println("Producto ya agregado al pedido");
+                            // el producto ya agregado no se permite modificar la cantidad acá (exclusivo del flujo de editar)
+                            continue;
+                        }
+
+                        Producto producto = (Producto) productoExistente;   // Casteamos de tipo Base a Producto
+
+                        // Solicitar la cantidad
+                        System.out.print("Ingrese la cantidad : ");
+                        String cantidad = Main.sc.nextLine().trim();
+
+                        // cantidad no puede ser 0
+                        while (!Validador.esNumeroEnteroValido(cantidad)) {
+                            System.out.print("Cantidad inválida. Inténtelo nuevamente: ");
+                            cantidad = Main.sc.nextLine().trim();
+                        }
+                        int cantidadDetalle = Integer.parseInt(cantidad);
+
+                        // Recién ahora se agrega el detalle al pedido
+                        nuevoPedido.addDetallePedido(cantidadDetalle, producto);
+
+                        System.out.print("Desea agregar otro producto? (S/N): ");
+                        // toma el input directamente al inicio                        
+                        
+                    } else if (respuesta.trim().toLowerCase().equals("n")) {
+                        System.out.println("\nNo se agregarán más detalles al pedido\n");
+                        reiterarPregunta = false;
+                        break;
+                    } else {
+                        System.out.print("Opción inválida. Desea agregar otro producto? (S/N): ");
+                        // toma el input directamente al inicio
+                    }
+                                        
+                } while (reiterarPregunta);       
+                
+                if (nuevoPedido.getDetalles().size() > 0) {                                        
+                    Main.pedidos.add(nuevoPedido);
+                    System.out.println("\nNuevo pedido agregado con ID " + nuevoPedido.getId());
+                 
+                } else {
+                    System.out.println("\nPedido sin detalles. Operación cancelada");
+                }
                 break;
             }
             default: {
@@ -512,7 +608,7 @@ public class Main {
 
                             if (respuesta.trim().toLowerCase().equals("s")) {
                                 categoria.setEliminado(true);
-                        
+                                
                                 System.out.println("\nCategoría eliminada\n");     
 
                                 reiterarPregunta = false;
@@ -558,7 +654,7 @@ public class Main {
 
                     if (respuesta.trim().toLowerCase().equals("s")) {
                         producto.setEliminado(true);
-
+                        
                         System.out.println("\nProducto eliminado\n");
 
                         reiterarPregunta = false;
@@ -755,10 +851,12 @@ public class Main {
                 
                 Categoria c1 = new Categoria("Categoria test", "descripcion categoria test");                
                 Main.categorias.add(c1);
+                
                 Usuario user = new Usuario("user","prueba","test@mail.com","11223344","password123",Rol.ADMIN);
-                Main.usuarios.add(user);
-                Pedido p1 = new Pedido(Estado.TERMINADO, FormaPago.TARJETA, user);
-                Main.pedidos.add(p1);
+                Main.usuarios.add(user);    
+                Producto pp = new Producto("producto1", 10, "desc", 1, "imagen.png", c1);
+                c1.agregarProducto(pp);
+                Main.productos.add(pp);
                 
                 System.out.println("Datos cargados OK");
 
@@ -815,10 +913,10 @@ public class Main {
 
         if (confirmarCambios()) {
             producto.setPrecio(precio);
-            producto.setStock(stock);
+            producto.setStock(stock);            
             if (!categoria.equals(producto.getCategoria())) {
                 producto.setCategoria(categoria);
-            }
+            }            
             System.out.println("\nCambios realizados");
         } else {
             System.out.println("\nLos cambios fueron cancelados");
