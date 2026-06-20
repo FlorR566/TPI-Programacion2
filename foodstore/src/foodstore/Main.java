@@ -374,7 +374,7 @@ public class Main {
                 Usuario usuario = (Usuario) elemento;
 
                 if (usuario.isEliminado()) {
-                    System.out.println("\nProducto ya eliminado\n");
+                    System.out.println("\nUsuario eliminado\n");
                     return;
                 }
 
@@ -421,17 +421,18 @@ public class Main {
 
                         // Verificar 3 casos clave: que el producto no sea null, si existe que esté disponible o tenga stock, que no haya sido agregado previamente al pedido
                         if (productoExistente == null) {
-                            System.out.println("\nProducto no encontrado");
-                            // deja seguir el flujo (vuelve arriba)
-                            continue;
+                            System.out.println("\nProducto no encontrado.");
+                            
+                            break;
                         } else if (productoExistente != null && (!((Producto) productoExistente).isDisponible() || ((Producto) productoExistente).getStock() == 0)) {
-                            System.out.println("\nProducto no disponible o sin stock");
-                            // deja seguir el flujo (vuelve arriba)
-                            continue;
+                            System.out.println("\nProducto no disponible o sin stock.");
+                          
+                            break;
                         } else if (nuevoPedido.findDetallePedidoByProducto((Producto) productoExistente) != null) {
-                            System.out.println("Producto ya agregado al pedido");
-                            // el producto ya agregado no se permite modificar la cantidad acá (exclusivo del flujo de editar)
-                            continue;
+                            System.out.println("\nProducto ya agregado al pedido.");
+                            // el producto ya fue agregado no se permite modificar la cantidad acá (exclusivo del flujo de editar)
+                            // sale y agrega el pedido
+                            break;
                         }
 
                         Producto producto = (Producto) productoExistente;   // Casteamos de tipo Base a Producto
@@ -442,13 +443,21 @@ public class Main {
 
                         // cantidad no puede ser 0
                         while (!Validador.esNumeroEnteroValido(cantidad)) {
-                            System.out.print("Cantidad inválida. Inténtelo nuevamente: ");
+                            System.out.print("\nCantidad inválida. Inténtelo nuevamente: ");
                             cantidad = Main.sc.nextLine().trim();
                         }
                         int cantidadDetalle = Integer.parseInt(cantidad);
+                        
+                        if (cantidadDetalle > producto.getStock()) {
+                            System.out.println("\nLa cantidad elegida no puede ser superior al stock disponible del producto");
+                            break;
+                        }
+                        
 
                         // Recién ahora se agrega el detalle al pedido
                         nuevoPedido.addDetallePedido(cantidadDetalle, producto);
+                        // reducir el stock 
+                        producto.setStock(producto.getStock() - cantidadDetalle);
 
                         System.out.print("Desea agregar otro producto? (S/N): ");
                         // toma el input directamente al inicio                        
@@ -469,7 +478,7 @@ public class Main {
                     System.out.println("\nNuevo pedido agregado con ID " + nuevoPedido.getId());
                  
                 } else {
-                    System.out.println("\nPedido sin detalles. Operación cancelada");
+                    System.out.println("\nPedido sin detalles válidos. Operación cancelada");
                 }
                 break;
             }
@@ -852,11 +861,19 @@ public class Main {
                 Categoria c1 = new Categoria("Categoria test", "descripcion categoria test");                
                 Main.categorias.add(c1);
                 
+                
                 Usuario user = new Usuario("user","prueba","test@mail.com","11223344","password123",Rol.ADMIN);
                 Main.usuarios.add(user);    
-                Producto pp = new Producto("producto1", 10, "desc", 1, "imagen.png", c1);
-                c1.agregarProducto(pp);
-                Main.productos.add(pp);
+//                user.setEliminado(true);
+                Producto pp1 = new Producto("producto1", 10, "desc", 1, "imagen.png", c1);
+                Producto pp2 = new Producto("producto2", 100, "desc", 2, "imagen.png", c1);
+                Producto pp3 = new Producto("producto3", 1, "desc", 0, "imagen.png", c1);
+                c1.agregarProducto(pp1);
+                c1.agregarProducto(pp2);
+                c1.agregarProducto(pp3);
+                Main.productos.add(pp1);
+                Main.productos.add(pp2);
+                Main.productos.add(pp3);
                 
                 System.out.println("Datos cargados OK");
 
