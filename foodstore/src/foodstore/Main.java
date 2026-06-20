@@ -8,6 +8,7 @@ import foodstore.entities.Producto;
 import foodstore.entities.Usuario;
 import foodstore.enums.Estado;
 import foodstore.enums.FormaPago;
+import foodstore.enums.Rol;
 import foodstore.enums.TipoValidacion;
 import foodstore.utils.Validador;
 import java.util.ArrayList;
@@ -474,7 +475,7 @@ public class Main {
                 break;
             }
             case "Pedido": {
-                
+                              
                 break;
             }
             default: {
@@ -578,7 +579,43 @@ public class Main {
                 break;
             }
             case "Pedido": {
+                System.out.println("\n========== ELIMINAR PEDIDO ==========\n");
+                // si eliminado, informar por consola
+                String id = pedirIdValido(); // Valida input vacío y números negativos
                 
+                Base pedido = Main.findElementoById(Integer.parseInt(id), Pedido.class.getSimpleName());
+
+                if (pedido == null) {
+                    System.out.println("\nPedido no encontrado\n");
+                } else {
+                    if (pedido.isEliminado()) {
+                        System.out.println("\nPedido ya eliminado\n");
+                    } else {
+                        
+                        System.out.println("\nPedido encontrado: " + pedido + "\n");
+                        System.out.print("Desea continuar con la eliminación? (S/N): ");
+
+                        boolean reiterarPregunta = true;
+
+                        do {            
+                            String respuesta = Main.sc.nextLine().trim();
+
+                            if (respuesta.trim().toLowerCase().equals("s")) {
+                                pedido.setEliminado(true);
+                        
+                                System.out.println("\nPedido eliminado\n");     
+
+                                reiterarPregunta = false;
+                            } else if (respuesta.trim().toLowerCase().equals("n")) {
+                                System.out.println("\nEliminación cancelada\n");
+                                reiterarPregunta = false;
+                                break;
+                            } else {
+                                System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");      
+                            }
+                        } while (reiterarPregunta);                                                                
+                    }
+                }
                 break;
             }
             default: {
@@ -716,11 +753,12 @@ public class Main {
                 
                 // TODO: inicializar objetos una vez estén hechas las clases
                 
-// test para listar elementos eliminados (no debe mostrarse)
-                Categoria c1 = new Categoria("test eliminado", "eliminado, no debería mostrarse");
-                c1.setEliminado(true);
+                Categoria c1 = new Categoria("Categoria test", "descripcion categoria test");                
                 Main.categorias.add(c1);
-                
+                Usuario user = new Usuario("user","prueba","test@mail.com","11223344","password123",Rol.ADMIN);
+                Main.usuarios.add(user);
+                Pedido p1 = new Pedido(Estado.TERMINADO, FormaPago.TARJETA, user);
+                Main.pedidos.add(p1);
                 
                 System.out.println("Datos cargados OK");
 
