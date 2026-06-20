@@ -580,7 +580,94 @@ public class Main {
                 break;
             }
             case "Pedido": {
-                              
+                System.out.println("\n========== EDITAR PEDIDO ==========\n");
+                // si eliminado, informar por consola
+                // si no existe, informar mensaje específico
+                // si eliminado, informar por consola
+                // actualiza sólo nombre y/o descripcion y confirma operación
+                String nombre = "";
+                String descripcion = "";
+
+                String id = pedirIdValido(); // Valida input vacío y números negativos
+                
+                Pedido pedido = (Pedido) Main.findElementoById(Integer.parseInt(id), Pedido.class.getSimpleName());
+
+                if (pedido == null) {
+                    System.out.println("\nPedido no encontrado\n");
+                } else {
+                    if (pedido.isEliminado()) {
+                        System.out.println("\nPedido ya eliminado\n");
+                    } else {
+                        String formaPago;
+                        String estado;
+                        
+                        System.out.println("\nPedido encontrado: " + pedido + "\n");
+                                          
+                        System.out.print("Ingrese la forma de pago (TARJETA, TRANSFERENCIA, EFECTIVO). Presione 'Enter' para conservar el valor actual: ");
+                        formaPago = Main.sc.nextLine().trim();
+                                              
+                        if (formaPago.trim().length() == 0) {
+                            formaPago = pedido.getFormaPago().toString();
+                        }
+                        
+                        // se cheqiea después del if ya que siempre va a ser una forma de pago válida si no se ingresa ningún valor
+                        while (!Validador.esFormaDePagoValida(formaPago)) {
+                            System.out.print("Forma de pago inválida. Ingrese TARJETA, TRANSFERENCIA o EFECTIVO: ");
+                            formaPago = Main.sc.nextLine().trim();
+                        }                
+              
+
+                        System.out.print("Ingrese el estado (PENDIENTE, CONFIRMADO, TERMINADO, CANCELADO). Presione 'Enter' para conservar el valor actual: ");            
+                        estado = Main.sc.nextLine().trim();
+                                               
+                        if (estado.trim().length() == 0) {
+                            estado = pedido.getEstado().toString();
+                        }
+                        
+                        // se cheqiea después del if ya que siempre va a ser un estado válido si no se ingresa ningún valor
+                        while (!Validador.esEstadoValido(estado)) {
+                            System.out.print("Estado inválido. Ingrese PENDIENTE, CONFIRMADO, TERMINADO o CANCELADO: ");
+                            estado = Main.sc.nextLine().trim();
+                        }
+                       
+                        // Confirmación (verificar respuesta correcta con loop)
+                        // Si no hay cambios, salir
+                        if (estado.equalsIgnoreCase(pedido.getEstado().toString()) && formaPago.equalsIgnoreCase(pedido.getFormaPago().toString())) {
+                            System.out.println("\nNo se registraron cambios. Saliendo\n");
+                        } else {                            
+                            System.out.println("\nEl pedido tendrá los siguientes valores:");
+                            System.out.println("Estado: " + estado.toUpperCase());
+                            System.out.println("Forma de pago: "+ formaPago.toUpperCase());
+
+                            System.out.print("Desea realizar estos cambios? (S/N): ");
+
+                            boolean reiterarPregunta = true;
+
+                            do {            
+                                String respuesta = Main.sc.nextLine().trim();
+
+                                if (respuesta.trim().toLowerCase().equals("s")) {
+                                      // Convertir los strings al enum correspondiente
+                                    Estado nuevoEstado = Estado.valueOf(estado.toUpperCase());
+                                    FormaPago nuevaFormaPago = FormaPago.valueOf(formaPago.toUpperCase());
+                                    pedido.setEstado(nuevoEstado);
+                                    pedido.setFormaPago(nuevaFormaPago);
+
+                                    System.out.println("\nCambios realizados");
+
+                                    reiterarPregunta = false;
+                                } else if (respuesta.trim().toLowerCase().equals("n")) {
+                                    System.out.println("\nLos cambios fueron cancelados");
+                                    reiterarPregunta = false;
+                                    break;
+                                } else {
+                                    System.out.print("Opción inválida. Desea realizar estos cambios? (S/N): ");      
+                                }
+                            } while (reiterarPregunta);
+                        }                        
+                    }
+                }
+                
                 break;
             }
             default: {
