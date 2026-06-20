@@ -119,7 +119,7 @@ public class Main {
                            Main.procesarOpcionCRUD(opcionSubmenu, Pedido.class.getSimpleName());
                            break;
 
-                       }                    
+                       }
                        default:
                             System.out.println("\nOpción inválida\n");
                             break;
@@ -209,14 +209,7 @@ public class Main {
                 
                 // Tomar argumentos
                 System.out.println("\n========== CREAR CATEGORIA ==========\n");
-                System.out.print("Ingrese el nombre: ");
-                
-                nombre = Main.sc.nextLine().trim();                
-                        
-                while (!Validador.validarCadena(nombre)) {
-                    System.out.print("Nombre inválido. Inténtelo nuevamente: ");
-                    nombre = Main.sc.nextLine().trim();
-                }
+                nombre = pedirNombreValido("Nombre");
                 
                 // Verificar que no exista ya la misma categoría               
                 Base categoriaExistente = Main.findElementoByNombre(nombre, Categoria.class.getSimpleName());
@@ -253,13 +246,7 @@ public class Main {
                 }
                 // Tomar argumentos
                 System.out.println("\n========== CREAR PRODUCTO ==========\n");
-                System.out.print("Ingrese el nombre: ");
-                String nombre = Main.sc.nextLine().trim();
-
-                while (!Validador.validarCadena(nombre)) {
-                    System.out.print("Nombre inválido. Inténtelo nuevamente: ");
-                    nombre = Main.sc.nextLine().trim();
-                }
+                String nombre = pedirNombreValido("Nombre");
 
                 // Verificar que no exista ya el mismo producto
                 Base productoExistente = Main.findElementoByNombre(nombre, Producto.class.getSimpleName());
@@ -326,7 +313,58 @@ public class Main {
                 break;
             }
             case "Usuario": {
-                
+                System.out.println("\n========== CREAR USUARIO ==========\n");
+                // Pedimos y validamos nombre + apellido
+                String nombre = pedirNombreValido("Nombre");
+                String apellido = pedirNombreValido("Apellido");
+
+                // Pedimos mail y validamos
+                System.out.print("Ingrese el mail: ");
+                String mail = Main.sc.nextLine().trim();
+
+                while (!Validador.validarEmail(mail)) {
+                    System.out.print("Mail inválido. Inténtelo nuevamente: ");
+                    mail = Main.sc.nextLine().trim();
+                }
+
+                // Validamos que no exista el mismo mail
+                while (!Validador.validarEmail(mail) || existeMail(mail, usuarios)) {
+                    if (!Validador.validarEmail(mail)) {
+                        System.out.print("Mail inválido. Inténtelo nuevamente: ");
+                    } else {
+                        System.out.print("Mail ya registrado. Ingrese otro: ");
+                    }
+                    mail = Main.sc.nextLine().trim();
+                }
+
+                // Pedimos celular y validamos
+                System.out.print("Ingrese el celular: ");
+                String celular = Main.sc.nextLine().trim();
+
+                while (!Validador.validarCelular(celular)) {
+                    System.out.print("Celular inválido. Inténtelo nuevamente: ");
+                    celular = Main.sc.nextLine().trim();
+                }
+
+                // Pedimos y validamos la contraseña
+                System.out.print("Ingrese la contraseña (Elegir 4 números o caracteres): ");
+                String contrasena = Main.sc.nextLine().trim();
+
+                while (contrasena == null || contrasena.trim().length() < 4) {
+                    System.out.print("Contraseña inválida (mínimo 4 caracteres). Inténtelo nuevamente: ");
+                    contrasena = Main.sc.nextLine();
+                }
+
+                // Pedimos rol y validamos
+                Rol rol = solicitarRol();
+
+                Usuario nuevoUsuario = new Usuario(nombre, apellido, mail, celular, contrasena, rol );
+
+                // Agregar a la lista correspondiente
+                Main.usuarios.add(nuevoUsuario);
+
+                System.out.println("\nNuevo usuario agregado con ID " + nuevoUsuario.getId());
+
                 break;
             }
             case "Pedido": {
@@ -336,34 +374,34 @@ public class Main {
                     System.out.println("\nNo existen productos en la tienda. Debe crear al menos un producto para generar un pedido");
                     break;
                 }
-                
+
                 String formaPago;
                 String idUsuario;
                 String estado;
-                
+
                 // Tomar argumentos
                 System.out.println("\n========== CREAR PEDIDO ==========\n");
-                
+
                 System.out.print("Ingrese forma de pago (TARJETA, TRANSFERENCIA, EFECTIVO): ");
                 formaPago = Main.sc.nextLine().trim();
-                        
+
                 while (!Validador.esFormaDePagoValida(formaPago)) {
                     System.out.print("Forma de pago inválida. Ingrese TARJETA, TRANSFERENCIA o EFECTIVO: ");
                     formaPago = Main.sc.nextLine().trim();
                 }
-                
-                System.out.print("Ingrese el estado (PENDIENTE, CONFIRMADO, TERMINADO, CANCELADO): ");            
+
+                System.out.print("Ingrese el estado (PENDIENTE, CONFIRMADO, TERMINADO, CANCELADO): ");
                 estado = Main.sc.nextLine().trim();
-                        
+
                 while (!Validador.esEstadoValido(estado)) {
                     System.out.print("Estado inválido. Ingrese PENDIENTE, CONFIRMADO, TERMINADO o CANCELADO: ");
                     estado = Main.sc.nextLine().trim();
                 }
-                
-                System.out.println("\nEl pedido debe tener un usuario.");            
-                
+
+                System.out.println("\nEl pedido debe tener un usuario.");
+
                 idUsuario = Main.pedirIdValido();
-                
+
                 // TODO: depende de Usuario
                 Base elemento = Main.findElementoById(Integer.parseInt(idUsuario), Usuario.class.getSimpleName());
 
@@ -379,32 +417,32 @@ public class Main {
                 }
 
                 System.out.println("\nUsuario encontrado: ID " + usuario.getId() + "\n");
-                
-                
+
+
                 // Convertir los strings al enum correspondiente
                 Estado estadoNuevoPedido = Estado.valueOf(estado.toUpperCase());
                 FormaPago formaPagoNuevoPedido = FormaPago.valueOf(formaPago.toUpperCase());
                 // El pedido se crea pero aún no se agrega en memoria porque no tiene detalles asociados
                 // La operación puede ser cancelada todavía
-                
-                Pedido nuevoPedido = new Pedido(estadoNuevoPedido, formaPagoNuevoPedido, usuario); 
-                
+
+                Pedido nuevoPedido = new Pedido(estadoNuevoPedido, formaPagoNuevoPedido, usuario);
+
                 // Iniciar bucle para agregar detalles
-                System.out.println("=== Detalles del pedido ===");              
+                System.out.println("=== Detalles del pedido ===");
                 boolean reiterarPregunta = true;
-                
+
                 System.out.print("Su pedido no contiene detalles. Desea agregar uno? (S/N): ");
 
                 do {
                     String respuesta = Main.sc.nextLine().trim();
 
                     if (respuesta.trim().toLowerCase().equals("s")) {
-                        
+
                         // es necesario dar la opción de salir con 0 porque puede quedarse en un bucle infinito
-                        // si no existen productos 
+                        // si no existen productos
                         System.out.print("\nIngrese el nombre de un producto para el detalle (0 para salir): ");
 
-                        String nombreProducto = Main.sc.nextLine().trim();                
+                        String nombreProducto = Main.sc.nextLine().trim();
 
                         while (!Validador.validarCadena(nombreProducto) && !nombreProducto.equals("0")) {
                             System.out.print("\nNombre inválido. Inténtelo nuevamente (0 para salir):  ");
@@ -416,17 +454,17 @@ public class Main {
                             return; // tiene que salir obligatoriamente porque no debe agregar el pedido (se hace después de este while)
                         }
 
-                        // Verificar que exista el producto             
+                        // Verificar que exista el producto
                         Base productoExistente = Main.findElementoByNombre(nombreProducto, Producto.class.getSimpleName());
 
                         // Verificar 3 casos clave: que el producto no sea null, si existe que esté disponible o tenga stock, que no haya sido agregado previamente al pedido
                         if (productoExistente == null) {
                             System.out.println("\nProducto no encontrado.");
-                            
+
                             break;
                         } else if (productoExistente != null && (!((Producto) productoExistente).isDisponible() || ((Producto) productoExistente).getStock() == 0)) {
                             System.out.println("\nProducto no disponible o sin stock.");
-                          
+
                             break;
                         } else if (nuevoPedido.findDetallePedidoByProducto((Producto) productoExistente) != null) {
                             System.out.println("\nProducto ya agregado al pedido.");
@@ -447,21 +485,21 @@ public class Main {
                             cantidad = Main.sc.nextLine().trim();
                         }
                         int cantidadDetalle = Integer.parseInt(cantidad);
-                        
+
                         if (cantidadDetalle > producto.getStock()) {
                             System.out.println("\nLa cantidad elegida no puede ser superior al stock disponible del producto");
                             break;
                         }
-                        
+
 
                         // Recién ahora se agrega el detalle al pedido
                         nuevoPedido.addDetallePedido(cantidadDetalle, producto);
-                        // reducir el stock 
+                        // reducir el stock
                         producto.setStock(producto.getStock() - cantidadDetalle);
 
                         System.out.print("Desea agregar otro producto? (S/N): ");
-                        // toma el input directamente al inicio                        
-                        
+                        // toma el input directamente al inicio
+
                     } else if (respuesta.trim().toLowerCase().equals("n")) {
                         System.out.println("\nNo se agregarán más detalles al pedido\n");
                         reiterarPregunta = false;
@@ -470,13 +508,13 @@ public class Main {
                         System.out.print("Opción inválida. Desea agregar otro producto? (S/N): ");
                         // toma el input directamente al inicio
                     }
-                                        
-                } while (reiterarPregunta);       
-                
-                if (nuevoPedido.getDetalles().size() > 0) {                                        
+
+                } while (reiterarPregunta);
+
+                if (nuevoPedido.getDetalles().size() > 0) {
                     Main.pedidos.add(nuevoPedido);
                     System.out.println("\nNuevo pedido agregado con ID " + nuevoPedido.getId());
-                 
+
                 } else {
                     System.out.println("\nPedido sin detalles válidos. Operación cancelada");
                 }
@@ -600,41 +638,41 @@ public class Main {
                     } else {
                         String formaPago;
                         String estado;
-                        
+
                         System.out.println("\nPedido encontrado: " + pedido + "\n");
-                                          
+
                         System.out.print("Ingrese la forma de pago (TARJETA, TRANSFERENCIA, EFECTIVO). Presione 'Enter' para conservar el valor actual: ");
                         formaPago = Main.sc.nextLine().trim();
-                                              
+
                         if (formaPago.trim().length() == 0) {
                             formaPago = pedido.getFormaPago().toString();
                         }
-                        
+
                         // se cheqiea después del if ya que siempre va a ser una forma de pago válida si no se ingresa ningún valor
                         while (!Validador.esFormaDePagoValida(formaPago)) {
                             System.out.print("Forma de pago inválida. Ingrese TARJETA, TRANSFERENCIA o EFECTIVO: ");
                             formaPago = Main.sc.nextLine().trim();
-                        }                
-              
+                        }
 
-                        System.out.print("Ingrese el estado (PENDIENTE, CONFIRMADO, TERMINADO, CANCELADO). Presione 'Enter' para conservar el valor actual: ");            
+
+                        System.out.print("Ingrese el estado (PENDIENTE, CONFIRMADO, TERMINADO, CANCELADO). Presione 'Enter' para conservar el valor actual: ");
                         estado = Main.sc.nextLine().trim();
-                                               
+
                         if (estado.trim().length() == 0) {
                             estado = pedido.getEstado().toString();
                         }
-                        
+
                         // se cheqiea después del if ya que siempre va a ser un estado válido si no se ingresa ningún valor
                         while (!Validador.esEstadoValido(estado)) {
                             System.out.print("Estado inválido. Ingrese PENDIENTE, CONFIRMADO, TERMINADO o CANCELADO: ");
                             estado = Main.sc.nextLine().trim();
                         }
-                       
+
                         // Confirmación (verificar respuesta correcta con loop)
                         // Si no hay cambios, salir
                         if (estado.equalsIgnoreCase(pedido.getEstado().toString()) && formaPago.equalsIgnoreCase(pedido.getFormaPago().toString())) {
                             System.out.println("\nNo se registraron cambios. Saliendo\n");
-                        } else {                            
+                        } else {
                             System.out.println("\nEl pedido tendrá los siguientes valores:");
                             System.out.println("Estado: " + estado.toUpperCase());
                             System.out.println("Forma de pago: "+ formaPago.toUpperCase());
@@ -643,7 +681,7 @@ public class Main {
 
                             boolean reiterarPregunta = true;
 
-                            do {            
+                            do {
                                 String respuesta = Main.sc.nextLine().trim();
 
                                 if (respuesta.trim().toLowerCase().equals("s")) {
@@ -661,13 +699,13 @@ public class Main {
                                     reiterarPregunta = false;
                                     break;
                                 } else {
-                                    System.out.print("Opción inválida. Desea realizar estos cambios? (S/N): ");      
+                                    System.out.print("Opción inválida. Desea realizar estos cambios? (S/N): ");
                                 }
                             } while (reiterarPregunta);
-                        }                        
+                        }
                     }
                 }
-                
+
                 break;
             }
             default: {
@@ -675,10 +713,10 @@ public class Main {
             }
         }
     }
-    
+
     // La implementación toma el ID para buscar y sólo setea eliminado = true;
     private static void eliminar(String objeto) {
-        String id = pedirIdValido(); // Valida input vacío y números negativos 
+        String id = pedirIdValido(); // Valida input vacío y números negativos
         Base elemento;
         switch(objeto) {
             case "Categoria": {
@@ -688,26 +726,26 @@ public class Main {
                 break;
             }
             case "Producto": {
-                System.out.println("\n========== ELIMINAR PRODUCTO ==========\n");               
+                System.out.println("\n========== ELIMINAR PRODUCTO ==========\n");
                 elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
 
                 break;
             }
             case "Usuario": {
-                System.out.println("\n========== ELIMINAR USUARIO ==========\n");               
+                System.out.println("\n========== ELIMINAR USUARIO ==========\n");
                 elemento = Main.findElementoById(Integer.parseInt(id), Usuario.class.getSimpleName());
 
                 break;
             }
             case "Pedido": {
                 System.out.println("\n========== ELIMINAR PEDIDO ==========\n");
-                elemento = Main.findElementoById(Integer.parseInt(id), Pedido.class.getSimpleName());             
+                elemento = Main.findElementoById(Integer.parseInt(id), Pedido.class.getSimpleName());
             }
             default: {
                 throw new RuntimeException("Error: Imposible eliminar objeto");
             }
-            
-        }         
+
+        }
 
         if (elemento == null) {
             System.out.println("\nNo encontrado\n");
@@ -721,13 +759,13 @@ public class Main {
 
                 boolean reiterarPregunta = true;
 
-                do {            
+                do {
                     String respuesta = Main.sc.nextLine().trim();
 
                     if (respuesta.trim().toLowerCase().equals("s")) {
                         elemento.setEliminado(true);
 
-                        System.out.println("\nEliminado\n");     
+                        System.out.println("\nEliminado\n");
 
                         reiterarPregunta = false;
                     } else if (respuesta.trim().toLowerCase().equals("n")) {
@@ -735,13 +773,13 @@ public class Main {
                         reiterarPregunta = false;
                         break;
                     } else {
-                        System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");      
+                        System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");
                     }
-                } while (reiterarPregunta);                                                                
+                } while (reiterarPregunta);
             }
         }
     }
-      
+
     // Validaciones / Métodos auxiliares
     
     private static boolean cumpleRangoValido(int opcion, int min, int max) {
@@ -868,15 +906,15 @@ public class Main {
 
             if (cargarDatosPrueba.trim().toLowerCase().equals("s")) {
                 System.out.println("Cargando datos...");
+
                 
-                
-//                
-//                Categoria c1 = new Categoria("Categoria test", "descripcion categoria test");                
+//
+//                Categoria c1 = new Categoria("Categoria test", "descripcion categoria test");
 //                Main.categorias.add(c1);
-//                
-//                
+//
+//
 //                Usuario user = new Usuario("user","prueba","test@mail.com","11223344","password123",Rol.ADMIN);
-//                Main.usuarios.add(user);    
+//                Main.usuarios.add(user);
 ////                user.setEliminado(true);
 //                Producto pp1 = new Producto("producto1", 10, "desc", 1, "imagen.png", c1);
 //                Producto pp2 = new Producto("producto2", 100, "desc", 2, "imagen.png", c1);
@@ -943,10 +981,10 @@ public class Main {
 
         if (confirmarCambios()) {
             producto.setPrecio(precio);
-            producto.setStock(stock);            
+            producto.setStock(stock);
             if (!categoria.equals(producto.getCategoria())) {
                 producto.setCategoria(categoria);
-            }            
+            }
             System.out.println("\nCambios realizados");
         } else {
             System.out.println("\nLos cambios fueron cancelados");
@@ -993,6 +1031,20 @@ public class Main {
         return (Categoria) categoriaBuscada;
     }
 
+    private static Rol solicitarRol() {
+        System.out.print("Seleccione un rol (1. ADMIN/ 2. USUARIO): ");
+
+        while (true) {
+            String entrada = Main.sc.nextLine().trim();
+            switch (entrada) {
+                case "1": return Rol.ADMIN;
+                case "2": return Rol.USUARIO;
+                default:
+                    System.out.print("Opción inválida. Ingrese 1 o 2: ");
+            }
+        }
+    }
+
     private static void mostrarResumenCambios(double precio, int stock, Categoria categoria) {
         System.out.println("\nEl producto tendrá los siguientes valores:");
         System.out.println("Precio: $ " + precio);
@@ -1022,4 +1074,25 @@ public class Main {
         }
         return id;
     }
+
+    private static String pedirNombreValido(String tipoDato) {
+        System.out.print("Ingrese el " + tipoDato.toLowerCase() + ": ");
+        String lectura = Main.sc.nextLine().trim();
+
+        while (!Validador.validarCadena(lectura)) {
+            System.out.print(tipoDato + " inválido. Inténtelo nuevamente: ");
+            lectura = Main.sc.nextLine().trim();
+        }
+        return lectura;
+    }
+
+    public static boolean existeMail (String mail, List<Usuario> usuarios) {
+        for (Usuario usuario : usuarios) {
+            if  (usuario.getMail().equalsIgnoreCase(mail)) {
+                return true; // Encontrado
+            }
+        }
+        return false; // no entontrado
+    }
+
 }
