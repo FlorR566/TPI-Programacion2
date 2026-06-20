@@ -3,9 +3,12 @@ package foodstore;
 
 import foodstore.entities.Base;
 import foodstore.entities.Categoria;
+import foodstore.entities.DetallePedido;
 import foodstore.entities.Pedido;
 import foodstore.entities.Producto;
 import foodstore.entities.Usuario;
+import foodstore.enums.Estado;
+import foodstore.enums.FormaPago;
 import foodstore.enums.Rol;
 import foodstore.enums.TipoValidacion;
 import foodstore.utils.Validador;
@@ -116,7 +119,7 @@ public class Main {
                            Main.procesarOpcionCRUD(opcionSubmenu, Pedido.class.getSimpleName());
                            break;
 
-                       }   
+                       }
                        default:
                             System.out.println("\nOpción inválida\n");
                             break;
@@ -157,7 +160,7 @@ public class Main {
                         break;
                     }                 
                     default:
-                        System.out.println("\nOpción inválida\n");
+//                        System.out.println("\nOpción inválida\n");
                         break;
                 }                
             } catch (IllegalArgumentException e) {
@@ -236,6 +239,11 @@ public class Main {
                 break;
             }
             case "Producto": {
+                // Check lógico necesario por la dependencia entre entidades
+                if (Main.categorias.size() == 0) {
+                    System.out.println("\nNo existen categorías creadas. Debe crear previamente al menos una categoría para su producto");
+                    break;
+                }
                 // Tomar argumentos
                 System.out.println("\n========== CREAR PRODUCTO ==========\n");
                 String nombre = pedirNombreValido("Nombre");
@@ -361,6 +369,155 @@ public class Main {
             }
             case "Pedido": {
                 
+                // Check lógico necesario por la dependencia entre entidades (para evitar bucles infinitos)
+                if (Main.productos.size() == 0) {
+                    System.out.println("\nNo existen productos en la tienda. Debe crear al menos un producto para generar un pedido");
+                    break;
+                }
+
+                String formaPago;
+                String idUsuario;
+                String estado;
+
+                // Tomar argumentos
+                System.out.println("\n========== CREAR PEDIDO ==========\n");
+
+                System.out.print("Ingrese forma de pago (TARJETA, TRANSFERENCIA, EFECTIVO): ");
+                formaPago = Main.sc.nextLine().trim();
+
+                while (!Validador.esFormaDePagoValida(formaPago)) {
+                    System.out.print("Forma de pago inválida. Ingrese TARJETA, TRANSFERENCIA o EFECTIVO: ");
+                    formaPago = Main.sc.nextLine().trim();
+                }
+
+                System.out.print("Ingrese el estado (PENDIENTE, CONFIRMADO, TERMINADO, CANCELADO): ");
+                estado = Main.sc.nextLine().trim();
+
+                while (!Validador.esEstadoValido(estado)) {
+                    System.out.print("Estado inválido. Ingrese PENDIENTE, CONFIRMADO, TERMINADO o CANCELADO: ");
+                    estado = Main.sc.nextLine().trim();
+                }
+
+                System.out.println("\nEl pedido debe tener un usuario.");
+
+                idUsuario = Main.pedirIdValido();
+
+                // TODO: depende de Usuario
+                Base elemento = Main.findElementoById(Integer.parseInt(idUsuario), Usuario.class.getSimpleName());
+
+                if (!(elemento instanceof Usuario)) {
+                    System.out.println("\nUsuario no encontrado\n");
+                    return;
+                }
+                Usuario usuario = (Usuario) elemento;
+
+                if (usuario.isEliminado()) {
+                    System.out.println("\nUsuario eliminado\n");
+                    return;
+                }
+
+                System.out.println("\nUsuario encontrado: ID " + usuario.getId() + "\n");
+
+
+                // Convertir los strings al enum correspondiente
+                Estado estadoNuevoPedido = Estado.valueOf(estado.toUpperCase());
+                FormaPago formaPagoNuevoPedido = FormaPago.valueOf(formaPago.toUpperCase());
+                // El pedido se crea pero aún no se agrega en memoria porque no tiene detalles asociados
+                // La operación puede ser cancelada todavía
+
+                Pedido nuevoPedido = new Pedido(estadoNuevoPedido, formaPagoNuevoPedido, usuario);
+
+                // Iniciar bucle para agregar detalles
+                System.out.println("=== Detalles del pedido ===");
+                boolean reiterarPregunta = true;
+
+                System.out.print("Su pedido no contiene detalles. Desea agregar uno? (S/N): ");
+
+                do {
+                    String respuesta = Main.sc.nextLine().trim();
+
+                    if (respuesta.trim().toLowerCase().equals("s")) {
+
+                        // es necesario dar la opción de salir con 0 porque puede quedarse en un bucle infinito
+                        // si no existen productos
+                        System.out.print("\nIngrese el nombre de un producto para el detalle (0 para salir): ");
+
+                        String nombreProducto = Main.sc.nextLine().trim();
+
+                        while (!Validador.validarCadena(nombreProducto) && !nombreProducto.equals("0")) {
+                            System.out.print("\nNombre inválido. Inténtelo nuevamente (0 para salir):  ");
+                            nombreProducto = Main.sc.nextLine().trim();
+                        }
+
+                        if (nombreProducto.equals("0")) {
+                            System.out.println("\nOperación cancelada");
+                            return; // tiene que salir obligatoriamente porque no debe agregar el pedido (se hace después de este while)
+                        }
+
+                        // Verificar que exista el producto
+                        Base productoExistente = Main.findElementoByNombre(nombreProducto, Producto.class.getSimpleName());
+
+                        // Verificar 3 casos clave: que el producto no sea null, si existe que esté disponible o tenga stock, que no haya sido agregado previamente al pedido
+                        if (productoExistente == null) {
+                            System.out.println("\nProducto no encontrado.");
+
+                            break;
+                        } else if (productoExistente != null && (!((Producto) productoExistente).isDisponible() || ((Producto) productoExistente).getStock() == 0)) {
+                            System.out.println("\nProducto no disponible o sin stock.");
+
+                            break;
+                        } else if (nuevoPedido.findDetallePedidoByProducto((Producto) productoExistente) != null) {
+                            System.out.println("\nProducto ya agregado al pedido.");
+                            // el producto ya fue agregado no se permite modificar la cantidad acá (exclusivo del flujo de editar)
+                            // sale y agrega el pedido
+                            break;
+                        }
+
+                        Producto producto = (Producto) productoExistente;   // Casteamos de tipo Base a Producto
+
+                        // Solicitar la cantidad
+                        System.out.print("Ingrese la cantidad : ");
+                        String cantidad = Main.sc.nextLine().trim();
+
+                        // cantidad no puede ser 0
+                        while (!Validador.esNumeroEnteroValido(cantidad)) {
+                            System.out.print("\nCantidad inválida. Inténtelo nuevamente: ");
+                            cantidad = Main.sc.nextLine().trim();
+                        }
+                        int cantidadDetalle = Integer.parseInt(cantidad);
+
+                        if (cantidadDetalle > producto.getStock()) {
+                            System.out.println("\nLa cantidad elegida no puede ser superior al stock disponible del producto");
+                            break;
+                        }
+
+
+                        // Recién ahora se agrega el detalle al pedido
+                        nuevoPedido.addDetallePedido(cantidadDetalle, producto);
+                        // reducir el stock
+                        producto.setStock(producto.getStock() - cantidadDetalle);
+
+                        System.out.print("Desea agregar otro producto? (S/N): ");
+                        // toma el input directamente al inicio
+
+                    } else if (respuesta.trim().toLowerCase().equals("n")) {
+                        System.out.println("\nNo se agregarán más detalles al pedido\n");
+                        reiterarPregunta = false;
+                        break;
+                    } else {
+                        System.out.print("Opción inválida. Desea agregar otro producto? (S/N): ");
+                        // toma el input directamente al inicio
+                    }
+
+                } while (reiterarPregunta);
+
+                if (nuevoPedido.getDetalles().size() > 0) {
+                    Main.pedidos.add(nuevoPedido);
+                    System.out.println("\nNuevo pedido agregado con ID " + nuevoPedido.getId());
+
+                } else {
+                    System.out.println("\nPedido sin detalles válidos. Operación cancelada");
+                }
                 break;
             }
             default: {
@@ -461,7 +618,94 @@ public class Main {
                 break;
             }
             case "Pedido": {
+                System.out.println("\n========== EDITAR PEDIDO ==========\n");
+                // si eliminado, informar por consola
+                // si no existe, informar mensaje específico
+                // si eliminado, informar por consola
+                // actualiza sólo nombre y/o descripcion y confirma operación
+                String nombre = "";
+                String descripcion = "";
+
+                String id = pedirIdValido(); // Valida input vacío y números negativos
                 
+                Pedido pedido = (Pedido) Main.findElementoById(Integer.parseInt(id), Pedido.class.getSimpleName());
+
+                if (pedido == null) {
+                    System.out.println("\nPedido no encontrado\n");
+                } else {
+                    if (pedido.isEliminado()) {
+                        System.out.println("\nPedido ya eliminado\n");
+                    } else {
+                        String formaPago;
+                        String estado;
+
+                        System.out.println("\nPedido encontrado: " + pedido + "\n");
+
+                        System.out.print("Ingrese la forma de pago (TARJETA, TRANSFERENCIA, EFECTIVO). Presione 'Enter' para conservar el valor actual: ");
+                        formaPago = Main.sc.nextLine().trim();
+
+                        if (formaPago.trim().length() == 0) {
+                            formaPago = pedido.getFormaPago().toString();
+                        }
+
+                        // se cheqiea después del if ya que siempre va a ser una forma de pago válida si no se ingresa ningún valor
+                        while (!Validador.esFormaDePagoValida(formaPago)) {
+                            System.out.print("Forma de pago inválida. Ingrese TARJETA, TRANSFERENCIA o EFECTIVO: ");
+                            formaPago = Main.sc.nextLine().trim();
+                        }
+
+
+                        System.out.print("Ingrese el estado (PENDIENTE, CONFIRMADO, TERMINADO, CANCELADO). Presione 'Enter' para conservar el valor actual: ");
+                        estado = Main.sc.nextLine().trim();
+
+                        if (estado.trim().length() == 0) {
+                            estado = pedido.getEstado().toString();
+                        }
+
+                        // se cheqiea después del if ya que siempre va a ser un estado válido si no se ingresa ningún valor
+                        while (!Validador.esEstadoValido(estado)) {
+                            System.out.print("Estado inválido. Ingrese PENDIENTE, CONFIRMADO, TERMINADO o CANCELADO: ");
+                            estado = Main.sc.nextLine().trim();
+                        }
+
+                        // Confirmación (verificar respuesta correcta con loop)
+                        // Si no hay cambios, salir
+                        if (estado.equalsIgnoreCase(pedido.getEstado().toString()) && formaPago.equalsIgnoreCase(pedido.getFormaPago().toString())) {
+                            System.out.println("\nNo se registraron cambios. Saliendo\n");
+                        } else {
+                            System.out.println("\nEl pedido tendrá los siguientes valores:");
+                            System.out.println("Estado: " + estado.toUpperCase());
+                            System.out.println("Forma de pago: "+ formaPago.toUpperCase());
+
+                            System.out.print("Desea realizar estos cambios? (S/N): ");
+
+                            boolean reiterarPregunta = true;
+
+                            do {
+                                String respuesta = Main.sc.nextLine().trim();
+
+                                if (respuesta.trim().toLowerCase().equals("s")) {
+                                      // Convertir los strings al enum correspondiente
+                                    Estado nuevoEstado = Estado.valueOf(estado.toUpperCase());
+                                    FormaPago nuevaFormaPago = FormaPago.valueOf(formaPago.toUpperCase());
+                                    pedido.setEstado(nuevoEstado);
+                                    pedido.setFormaPago(nuevaFormaPago);
+
+                                    System.out.println("\nCambios realizados");
+
+                                    reiterarPregunta = false;
+                                } else if (respuesta.trim().toLowerCase().equals("n")) {
+                                    System.out.println("\nLos cambios fueron cancelados");
+                                    reiterarPregunta = false;
+                                    break;
+                                } else {
+                                    System.out.print("Opción inválida. Desea realizar estos cambios? (S/N): ");
+                                }
+                            } while (reiterarPregunta);
+                        }
+                    }
+                }
+
                 break;
             }
             default: {
@@ -469,72 +713,48 @@ public class Main {
             }
         }
     }
-    
+
     // La implementación toma el ID para buscar y sólo setea eliminado = true;
     private static void eliminar(String objeto) {
+        String id = pedirIdValido(); // Valida input vacío y números negativos
+        Base elemento;
         switch(objeto) {
             case "Categoria": {
                 System.out.println("\n========== ELIMINAR CATEGORIA ==========\n");
-                // si eliminado, informar por consola
-
-                String id = pedirIdValido(); // Valida input vacío y números negativos
-                
-                Base categoria = Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
-
-                if (categoria == null) {
-                    System.out.println("\nCategoría no encontrada\n");
-                } else {
-                    if (categoria.isEliminado()) {
-                        System.out.println("\nCategoría ya eliminada\n");
-                    } else {
-                        
-                        System.out.println("\nCategoría encontrada: " + categoria + "\n");
-                        System.out.print("Desea continuar con la eliminación? (S/N): ");
-
-                        boolean reiterarPregunta = true;
-
-                        do {            
-                            String respuesta = Main.sc.nextLine().trim();
-
-                            if (respuesta.trim().toLowerCase().equals("s")) {
-                                categoria.setEliminado(true);
-                        
-                                System.out.println("\nCategoría eliminada\n");     
-
-                                reiterarPregunta = false;
-                            } else if (respuesta.trim().toLowerCase().equals("n")) {
-                                System.out.println("\nEliminación cancelada\n");
-                                reiterarPregunta = false;
-                                break;
-                            } else {
-                                System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");      
-                            }
-                        } while (reiterarPregunta);                                                                
-                    }
-                }
+                elemento = Main.findElementoById(Integer.parseInt(id), Categoria.class.getSimpleName());
 
                 break;
             }
             case "Producto": {
                 System.out.println("\n========== ELIMINAR PRODUCTO ==========\n");
-                // si eliminado, informar por consola
-                String id = pedirIdValido(); // Valida input vacío y números negativos
+                elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
 
-                Base elemento = Main.findElementoById(Integer.parseInt(id), Producto.class.getSimpleName());
+                break;
+            }
+            case "Usuario": {
+                System.out.println("\n========== ELIMINAR USUARIO ==========\n");
+                elemento = Main.findElementoById(Integer.parseInt(id), Usuario.class.getSimpleName());
 
-                if (!(elemento instanceof Producto)) {
-                    System.out.println("\nProducto no encontrado\n");
-                    return;
-                }
+                break;
+            }
+            case "Pedido": {
+                System.out.println("\n========== ELIMINAR PEDIDO ==========\n");
+                elemento = Main.findElementoById(Integer.parseInt(id), Pedido.class.getSimpleName());
+            }
+            default: {
+                throw new RuntimeException("Error: Imposible eliminar objeto");
+            }
 
-                Producto producto = (Producto) elemento;
+        }
 
-                if (producto.isEliminado()) {
-                    System.out.println("\nProducto ya eliminado\n");
-                    return;
-                }
+        if (elemento == null) {
+            System.out.println("\nNo encontrado\n");
+        } else {
+            if (elemento.isEliminado()) {
+                System.out.println("\nYa eliminado\n");
+            } else {
 
-                System.out.println("\nProducto encontrado: " + producto + "\n");
+                System.out.println("\nEncontrado: " + elemento + "\n");
                 System.out.print("Desea continuar con la eliminación? (S/N): ");
 
                 boolean reiterarPregunta = true;
@@ -543,9 +763,9 @@ public class Main {
                     String respuesta = Main.sc.nextLine().trim();
 
                     if (respuesta.trim().toLowerCase().equals("s")) {
-                        producto.setEliminado(true);
+                        elemento.setEliminado(true);
 
-                        System.out.println("\nProducto eliminado\n");
+                        System.out.println("\nEliminado\n");
 
                         reiterarPregunta = false;
                     } else if (respuesta.trim().toLowerCase().equals("n")) {
@@ -556,24 +776,10 @@ public class Main {
                         System.out.print("Opción inválida. Desea continuar con la eliminación? (S/N): ");
                     }
                 } while (reiterarPregunta);
-
-
-                break;
-            }
-            case "Usuario": {
-                
-                break;
-            }
-            case "Pedido": {
-                
-                break;
-            }
-            default: {
-                throw new RuntimeException("Error: Imposible eliminar objeto");
             }
         }
     }
-    
+
     // Validaciones / Métodos auxiliares
     
     private static boolean cumpleRangoValido(int opcion, int min, int max) {
@@ -700,14 +906,25 @@ public class Main {
 
             if (cargarDatosPrueba.trim().toLowerCase().equals("s")) {
                 System.out.println("Cargando datos...");
+
                 
-                // TODO: inicializar objetos una vez estén hechas las clases
-                
-// test para listar elementos eliminados (no debe mostrarse)
-                Categoria c1 = new Categoria("test eliminado", "eliminado, no debería mostrarse");
-                c1.setEliminado(true);
-                Main.categorias.add(c1);
-                
+//
+//                Categoria c1 = new Categoria("Categoria test", "descripcion categoria test");
+//                Main.categorias.add(c1);
+//
+//
+//                Usuario user = new Usuario("user","prueba","test@mail.com","11223344","password123",Rol.ADMIN);
+//                Main.usuarios.add(user);
+////                user.setEliminado(true);
+//                Producto pp1 = new Producto("producto1", 10, "desc", 1, "imagen.png", c1);
+//                Producto pp2 = new Producto("producto2", 100, "desc", 2, "imagen.png", c1);
+//                Producto pp3 = new Producto("producto3", 1, "desc", 0, "imagen.png", c1);
+//                c1.agregarProducto(pp1);
+//                c1.agregarProducto(pp2);
+//                c1.agregarProducto(pp3);
+//                Main.productos.add(pp1);
+//                Main.productos.add(pp2);
+//                Main.productos.add(pp3);
                 
                 System.out.println("Datos cargados OK");
 

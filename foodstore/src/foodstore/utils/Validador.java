@@ -1,5 +1,8 @@
 package foodstore.utils;
 
+import foodstore.enums.Estado;
+import foodstore.enums.FormaPago;
+
 public class Validador {
     
     public static boolean validarCadena(String cadena) {
@@ -33,6 +36,14 @@ public class Validador {
     // Acepta 0 o cualquier entero positivo (para stock)
     public static boolean esNumeroEnteroNoNegativoValido(String cadena) {
         return cadena.matches("^\\d+$") && Integer.parseInt(cadena) >= 0;
+    }
+    
+    public static boolean esFormaDePagoValida(String cadena) {
+        return cadena.equalsIgnoreCase(FormaPago.EFECTIVO.toString()) || cadena.equalsIgnoreCase(FormaPago.TARJETA.toString()) || cadena.equalsIgnoreCase(FormaPago.TRANSFERENCIA.toString());
+    }
+    
+    public static boolean esEstadoValido(String cadena) {
+        return cadena.equalsIgnoreCase(Estado.CANCELADO.toString()) || cadena.equalsIgnoreCase(Estado.CONFIRMADO.toString()) || cadena.equalsIgnoreCase(Estado.PENDIENTE.toString()) || cadena.equalsIgnoreCase(Estado.TERMINADO.toString());
     }
 
     // Valida que el mail contenga '@' y que esté en medio

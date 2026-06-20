@@ -66,6 +66,9 @@ public class Producto extends Base {
     public void setStock(int stock) {
          if (stock >= 0) {
             this.stock = stock;
+            if (stock == 0) {
+                this.setDisponible(false);
+            }
         } else {
             throw new IllegalArgumentException("Stock producto inválido");
         }
