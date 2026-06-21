@@ -18,7 +18,7 @@ import java.util.Scanner;
 
 public class Main {
     private static Scanner sc = new Scanner(System.in);
-    private static List<Categoria> categorias = new ArrayList<Categoria>();
+    private static List<Categoria> categorias = new ArrayList<>();
     private static List<Producto> productos = new ArrayList<>();
     private static List<Usuario> usuarios = new ArrayList<>();
     private static List<Pedido> pedidos = new ArrayList<>();
@@ -1125,7 +1125,7 @@ public class Main {
                 return true; // Encontrado
             }
         }
-        return false; // no entontrado
+        return false; // no encontrado
     }
 
 }
