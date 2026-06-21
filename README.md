@@ -14,16 +14,17 @@ Toda la información se almacena en memoria usando Colecciones durante la ejecuc
 
 ## Estudiantes
 
-Aldana, Lara Agustina - Comisión 6
-Miglioranza, Manuel Agustín - Comisión 8
-Pavic, Lucelia Ines - Comisión 2
-Rodriguez, Florencia Mabel - Comisión 1
+- Aldana, Lara Agustina - Comisión 6
+- Miglioranza, Manuel Agustín - Comisión 8 
+- Pavic, Lucelia Ines - Comisión 2 
+- Rodriguez, Florencia Mabel - Comisión 1
 
 ---
 
 ## Video demostrativo
 
-[Enlace al video](#) _( )_
+[Ver video en YouTube](https://www.youtube.com/watch?v=evJ12b_Eqz4 "Haga clic para ver el video")
+
 
 ---
 
