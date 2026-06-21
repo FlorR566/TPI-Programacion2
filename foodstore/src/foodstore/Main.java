@@ -37,9 +37,7 @@ public class Main {
     
     private static void init() {
         int opcionMenu = -1;
-        System.out.println("\n========= SISTEMA DE PEDIDOS (FOOD STORE) ==========");
-        
-        Main.sugerirCargarDatos();
+        System.out.println("\n========= SISTEMA DE PEDIDOS (FOOD STORE) ==========");                
 
         do {
             Main.mostrarMenu();                       
@@ -973,49 +971,7 @@ public class Main {
         
     }
     
-    // útil para debuggear (crear elementos para testear
-    private static void sugerirCargarDatos() {
-        boolean reiterarPregunta = true;
-
-        System.out.print("La aplicación no contiene datos. Desea cargar datos de prueba? (S/N): ");
-        do {            
-            String cargarDatosPrueba = Main.sc.nextLine().trim();
-
-            if (cargarDatosPrueba.trim().toLowerCase().equals("s")) {
-                System.out.println("Cargando datos...");
-
-                
-//
-//                Categoria c1 = new Categoria("Categoria test", "descripcion categoria test");
-//                Main.categorias.add(c1);
-//
-//
-//                Usuario user = new Usuario("user","prueba","test@mail.com","11223344","password123",Rol.ADMIN);
-//                Main.usuarios.add(user);
-////                user.setEliminado(true);
-//                Producto pp1 = new Producto("producto1", 10, "desc", 1, "imagen.png", c1);
-//                Producto pp2 = new Producto("producto2", 100, "desc", 2, "imagen.png", c1);
-//                Producto pp3 = new Producto("producto3", 1, "desc", 0, "imagen.png", c1);
-//                c1.agregarProducto(pp1);
-//                c1.agregarProducto(pp2);
-//                c1.agregarProducto(pp3);
-//                Main.productos.add(pp1);
-//                Main.productos.add(pp2);
-//                Main.productos.add(pp3);
-                
-                System.out.println("Datos cargados OK");
-
-                reiterarPregunta = false;
-
-            } else if (cargarDatosPrueba.trim().toLowerCase().equals("n")) {
-                reiterarPregunta = false;
-                return;
-            } else {
-                System.out.print("Opción inválida. Desea cargar datos de prueba? (S/N): ");      
-            }
-        } while (reiterarPregunta);
-    }        
-
+ 
 
     private static void flujoEditarProducto() {
         System.out.println("\n========== EDITAR PRODUCTO ==========\n");
