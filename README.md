@@ -72,7 +72,7 @@ src/
 
 ```bash
 # Compilar
-javac -d out src/integrado/prog2/**/*.java
+javac -d out src/foodstore/**/*.java
 
 # Ejecutar
 java -cp out integrado.prog2.Main
