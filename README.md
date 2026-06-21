@@ -14,9 +14,11 @@ Toda la información se almacena en memoria usando Colecciones durante la ejecuc
 
 ## Estudiantes
 
+Grupo 22
+
 - Aldana, Lara Agustina - Comisión 6
-- Miglioranza, Manuel Agustín - Comisión 8 
-- Pavic, Lucelia Ines - Comisión 2 
+- Miglioranza, Manuel Agustín - Comisión 8
+- Pavic, Lucelia Ines - Comisión 2
 - Rodriguez, Florencia Mabel - Comisión 1
 
 ---
@@ -24,7 +26,6 @@ Toda la información se almacena en memoria usando Colecciones durante la ejecuc
 ## Video demostrativo
 
 [Ver video en YouTube](https://www.youtube.com/watch?v=evJ12b_Eqz4 "Haga clic para ver el video")
-
 
 ---
 
@@ -41,7 +42,7 @@ Toda la información se almacena en memoria usando Colecciones durante la ejecuc
 
 ```
 src/
-└── integrado/prog2/
+└── foodstore/
     ├── Main.java
     ├── entities/
     ├── enums/
@@ -55,6 +56,7 @@ src/
 
 - JDK 21 instalado
 - Variable de entorno `JAVA_HOME` configurada
+- NetBeans instalado (opcional) u otro IDE compatible con Java 21.
 
 ---
 
@@ -63,7 +65,7 @@ src/
 **Opción 1 – Desde un IDE (Apache NetBeans / IntelliJ IDEA / Eclipse)**
 
 1. Clonar el repositorio
-2. Importar como proyecto Java
+2. Importar como proyecto Java (Ant)
 3. Ejecutar la clase `Main.java`
 
 **Opción 2 – Desde la terminal**
