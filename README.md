@@ -29,6 +29,10 @@ Grupo 22
 
 ---
 
+## Link trabajo práctico (pdf)
+
+[TPI-Programacion-2.pdf](TPI-Programacion-2.pdf)
+
 ## Tecnologías
 
 - Java 21
